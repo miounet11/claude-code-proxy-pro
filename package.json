@@ -1,6 +1,6 @@
 {
   "name": "claude-code-proxy-pro",
-  "version": "3.3.1",
+  "version": "3.3.3",
   "description": "一个高效的Claude Code代理工具",
   "main": "src/main/main.js",
   "scripts": {

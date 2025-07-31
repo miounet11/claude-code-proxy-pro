@@ -415,9 +415,8 @@ ipcMain.handle('open-terminal-with-command', async (_, command) => {
       exec(`osascript -e 'tell app "Terminal" to do script "${script}"'`);
       return { success: true };
     } else if (process.platform === 'win32') {
-      // Windows: 在新CMD中执行命令，处理路径中的空格
-      const escapedCommand = command.replace(/"/g, '""');
-      exec(`start cmd /k "${escapedCommand}"`);
+      // Windows: 在新CMD中执行命令
+      exec(`start cmd /k "${command}"`);
       return { success: true };
     } else {
       // Linux: 在新终端中执行命令

@@ -76,7 +76,7 @@ function extendPath() {
 // 获取操作系统特定的命令
 function getOSSpecificCommand(cmd, platform) {
   const commands = {
-    checknodejs: {
+    checknode: {
       darwin: 'node --version',
       win32: 'node.exe --version || node --version',
       linux: 'node --version'
@@ -86,7 +86,7 @@ function getOSSpecificCommand(cmd, platform) {
       win32: 'git.exe --version || git --version', 
       linux: 'git --version'
     },
-    checkclaudeCode: {
+    checkclaude: {
       darwin: 'claude-code --version || claude --version',
       win32: 'claude-code.cmd --version || claude.cmd --version || claude-code --version',
       linux: 'claude-code --version || claude --version'

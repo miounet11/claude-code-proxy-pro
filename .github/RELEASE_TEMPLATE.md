@@ -1,4 +1,4 @@
-# Claude Code Proxy Pro v3.3.1 - Phase 1 Complete! 🎉
+# Claude Code Proxy Pro v3.0.1
 
 [简体中文](#简体中文) | [English](#english) | [日本語](#日本語) | [繁體中文](#繁體中文)
 
@@ -6,18 +6,19 @@
 
 ## English
 
-### 🎉 What's New in v3.3.1 - Phase 1 Complete!
-- 🔒 **Security First**: Removed all hardcoded API keys and fixed path traversal vulnerabilities
-- 🐛 **Major Fixes**: Resolved startup errors and environment detection issues
-- 🌍 **True Cross-Platform**: Enhanced Windows, macOS, and Linux compatibility
-- 🛡️ **Rock-Solid Stability**: Improved error handling and app lifecycle management
-- ✨ **Phase 1 Complete**: Core proxy features are now production-ready!
+### 🎉 What's New in v3.0.1
+- 🐛 **Critical Fix**: Resolved 404 error when checking for updates
+- 🔧 **Enhanced Compatibility**: Improved support for all platforms (Windows, macOS, Linux)
+- 🛡️ **Stability**: Added comprehensive error handling and recovery mechanisms
+- 📦 **Better Detection**: Enhanced environment detection with platform-specific paths
+- ⚡ **Performance**: Added request tracking, timeouts, and connection pooling
+- 🔐 **Reliability**: Implemented circuit breaker pattern to prevent cascade failures
 
 ### 📥 Downloads
-- **Windows**: `Claude-Code-Proxy-Pro-3.3.1-win-x64.exe`
-- **macOS Intel**: `Claude-Code-Proxy-Pro-3.3.1-mac-x64.dmg`
-- **macOS Apple Silicon**: `Claude-Code-Proxy-Pro-3.3.1-mac-arm64.dmg`
-- **Linux**: `Claude-Code-Proxy-Pro-3.3.1-linux-x64.AppImage`
+- **Windows**: `Claude-Code-Proxy-Pro-3.0.1-win-x64.exe`
+- **macOS Intel**: `Claude-Code-Proxy-Pro-3.0.1-mac-x64.dmg`
+- **macOS Apple Silicon**: `Claude-Code-Proxy-Pro-3.0.1-mac-arm64.dmg`
+- **Linux**: `Claude-Code-Proxy-Pro-3.0.1-linux-x64.AppImage`
 
 ### 📦 Installation
 1. Download the appropriate file for your operating system
@@ -29,18 +30,19 @@
 
 ## 简体中文
 
-### 🎉 v3.3.1 新功能 - 第一阶段完成！
-- 🔒 **安全优先**：移除所有硬编码API密钥，修复路径遍历漏洞
-- 🐛 **重大修复**：解决启动错误和环境检测问题
-- 🌍 **真正跨平台**：增强Windows、macOS和Linux兼容性
-- 🛡️ **坚如磐石**：改进错误处理和应用生命周期管理
-- ✨ **第一阶段完成**：核心代理功能已可用于生产环境！
+### 🎉 v3.0.1 新功能
+- 🐛 **关键修复**：解决了检查更新时的404错误
+- 🔧 **兼容性增强**：改进了所有平台（Windows、macOS、Linux）的支持
+- 🛡️ **稳定性**：添加了全面的错误处理和恢复机制
+- 📦 **更好的检测**：增强了环境检测，支持平台特定路径
+- ⚡ **性能提升**：添加了请求跟踪、超时控制和连接池
+- 🔐 **可靠性**：实现了熔断器模式，防止级联故障
 
 ### 📥 下载
-- **Windows 版本**：`Claude-Code-Proxy-Pro-3.3.1-win-x64.exe`
-- **macOS Intel 版本**：`Claude-Code-Proxy-Pro-3.3.1-mac-x64.dmg`
-- **macOS Apple 芯片版本**：`Claude-Code-Proxy-Pro-3.3.1-mac-arm64.dmg`
-- **Linux 版本**：`Claude-Code-Proxy-Pro-3.3.1-linux-x64.AppImage`
+- **Windows 版本**：`Claude-Code-Proxy-Pro-3.0.1-win-x64.exe`
+- **macOS Intel 版本**：`Claude-Code-Proxy-Pro-3.0.1-mac-x64.dmg`
+- **macOS Apple 芯片版本**：`Claude-Code-Proxy-Pro-3.0.1-mac-arm64.dmg`
+- **Linux 版本**：`Claude-Code-Proxy-Pro-3.0.1-linux-x64.AppImage`
 
 ### 📦 安装说明
 1. 下载适合您操作系统的文件
