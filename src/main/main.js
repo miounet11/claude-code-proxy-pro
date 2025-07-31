@@ -64,7 +64,9 @@ function createWindow() {
     },
     icon: path.join(__dirname, '../../assets/icon.png'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    show: false
+    show: false,
+    // 添加背景色避免白屏
+    backgroundColor: '#1e1e1e'
   });
 
   // 加载应用界面
@@ -74,9 +76,13 @@ function createWindow() {
   
   mainWindow.loadURL(startUrl);
 
-  // 窗口准备就绪后显示
+  // 窗口准备就绪后显示，避免长时间跳动
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    // 聚焦窗口，停止图标跳动
+    if (process.platform === 'darwin') {
+      app.dock.bounce('informational');
+    }
     if (process.argv.includes('--dev')) {
       mainWindow.webContents.openDevTools();
     }

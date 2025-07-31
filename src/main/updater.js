@@ -22,8 +22,12 @@ class UpdateManager {
       
       // 延迟检查更新，避免启动时的网络问题
       setTimeout(() => {
-        autoUpdater.checkForUpdatesAndNotify();
-      }, 5000);
+        // 添加错误处理，避免 404 错误弹窗
+        autoUpdater.checkForUpdatesAndNotify().catch(err => {
+          logger.warn('Updater', '检查更新失败', err.message);
+          // 不显示错误弹窗，只记录日志
+        });
+      }, 10000); // 增加延迟到 10 秒
     }
     
     this.setupEventHandlers();
@@ -38,6 +42,15 @@ class UpdateManager {
     autoUpdater.on('checking-for-update', () => {
       logger.info('Updater', '正在检查更新...');
       this.sendStatusToWindow('checking-for-update');
+    });
+    
+    // 错误处理
+    autoUpdater.on('error', (err) => {
+      logger.error('Updater', '更新错误', err);
+      // 只在手动检查时显示错误
+      if (this.isManualCheck) {
+        this.sendStatusToWindow('error', err);
+      }
     });
     
     // 发现新版本

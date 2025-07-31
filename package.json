@@ -94,6 +94,12 @@
     ],
     "compression": "maximum",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "publish": {
+      "provider": "github",
+      "owner": "miounet11",
+      "repo": "claude-code-proxy-pro",
+      "releaseType": "release"
+    },
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
