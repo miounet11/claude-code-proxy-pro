@@ -1,0 +1,176 @@
+{
+  "name": "claude-code-proxy-pro",
+  "version": "2.0.1",
+  "description": "一个高效的Claude Code代理工具",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "npm run build:clean && electron-builder",
+    "build:clean": "rimraf dist",
+    "build:win": "npm run build:clean && electron-builder --win",
+    "build:mac": "npm run build:clean && electron-builder --mac",
+    "build:linux": "npm run build:clean && electron-builder --linux",
+    "build:all": "npm run build:clean && electron-builder -mwl",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win --x64 --ia32",
+    "dist:mac": "electron-builder --mac --x64 --arm64",
+    "dist:linux": "electron-builder --linux",
+    "release": "node scripts/release.js",
+    "release:publish": "electron-builder --publish=always",
+    "postinstall": "electron-builder install-app-deps",
+    "prebuild": "node scripts/optimize-build.js",
+    "postbuild": "node scripts/post-build.js",
+    "icons": "node scripts/generate-icons.js",
+    "test": "node test/test-suite.js",
+    "test:e2e": "./test/run-tests.sh --e2e",
+    "test:all": "./test/run-tests.sh --all"
+  },
+  "keywords": ["claude", "proxy", "electron", "desktop", "developer-tools"],
+  "author": "Claude Code Proxy Pro Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/claude-code-proxy-pro.git"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7",
+    "axios": "^1.6.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  },
+  "build": {
+    "appId": "com.claudecodeproxy.pro",
+    "productName": "Claude Code Proxy Pro",
+    "copyright": "Copyright © 2025 ${author}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "public/**/*",
+      "assets/**/*",
+      "!**/*.{map,ts,spec.js,test.js}",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.{node,dll}"
+    ],
+    "compression": "maximum",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "publisherName": "Claude Code Proxy Pro Team",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Claude Code Proxy Pro"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        },
+        {
+          "target": "rpm",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icons",
+      "category": "Development",
+      "synopsis": "高效的Claude Code代理工具",
+      "desktop": {
+        "StartupNotify": "true",
+        "Encoding": "UTF-8",
+        "MimeType": "application/x-claude-proxy"
+      }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "yourusername",
+        "repo": "claude-code-proxy-pro",
+        "releaseType": "release"
+      }
+    ]
+  }
+}

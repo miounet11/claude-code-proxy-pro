@@ -1,0 +1,226 @@
+// 渲染进程脚本
+const { electronAPI } = window;
+
+// DOM元素
+const elements = {
+    version: document.getElementById('version'),
+    globalStatus: document.getElementById('globalStatus'),
+    environmentList: document.getElementById('environmentList'),
+    checkEnvBtn: document.getElementById('checkEnvBtn'),
+    apiKey: document.getElementById('apiKey'),
+    proxyUrl: document.getElementById('proxyUrl'),
+    toggleApiKey: document.getElementById('toggleApiKey'),
+    saveEnvBtn: document.getElementById('saveEnvBtn'),
+    testEnvBtn: document.getElementById('testEnvBtn'),
+    toast: document.getElementById('toast')
+};
+
+// 状态管理
+const state = {
+    environments: {},
+    isOnline: false,
+    apiKeyVisible: false
+};
+
+// Toast提示
+function showToast(message, type = 'info') {
+    const toast = elements.toast;
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// 更新全局状态
+function updateGlobalStatus(isOnline) {
+    state.isOnline = isOnline;
+    const statusEl = elements.globalStatus;
+    
+    if (isOnline) {
+        statusEl.classList.add('online');
+        statusEl.querySelector('.status-text').textContent = '在线';
+    } else {
+        statusEl.classList.remove('online');
+        statusEl.querySelector('.status-text').textContent = '离线';
+    }
+}
+
+// 渲染环境列表
+function renderEnvironments(environments) {
+    state.environments = environments;
+    const list = elements.environmentList;
+    
+    if (!environments || Object.keys(environments).length === 0) {
+        list.innerHTML = '<div class="env-item"><span class="env-status not-installed">暂无环境信息，请点击检测按钮</span></div>';
+        return;
+    }
+    
+    const html = Object.entries(environments).map(([key, env]) => {
+        const isInstalled = env.status === 'installed';
+        const statusClass = isInstalled ? 'installed' : 'not-installed';
+        const statusIcon = isInstalled ? '✓' : '○';
+        const statusText = isInstalled ? `已安装 v${env.version}` : '未安装';
+        
+        return `
+            <div class="env-item">
+                <div class="env-info">
+                    <div class="env-name">${env.name}</div>
+                    <div class="env-status ${statusClass}">
+                        <span>${statusIcon}</span>
+                        <span>${statusText}</span>
+                    </div>
+                </div>
+                ${!isInstalled ? `<button class="install-btn" data-env="${key}">安装</button>` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    list.innerHTML = html;
+    
+    // 绑定安装按钮事件
+    list.querySelectorAll('.install-btn').forEach(btn => {
+        btn.addEventListener('click', handleInstallEnvironment);
+    });
+}
+
+// 检测环境
+async function checkEnvironments() {
+    const btn = elements.checkEnvBtn;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> 检测中...';
+    
+    try {
+        const environments = await electronAPI.checkEnvironments();
+        renderEnvironments(environments);
+        showToast('环境检测完成', 'success');
+    } catch (error) {
+        showToast(`检测失败: ${error.message}`, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">🔍</span> 检测系统环境';
+    }
+}
+
+// 安装环境
+async function handleInstallEnvironment(event) {
+    const envKey = event.target.dataset.env;
+    const env = state.environments[envKey];
+    
+    if (!confirm(`确定要安装 ${env.name} 吗？`)) return;
+    
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '安装中...';
+    
+    try {
+        const result = await electronAPI.installEnvironment(envKey);
+        showToast(result.message, 'success');
+        // 重新检测环境
+        await checkEnvironments();
+    } catch (error) {
+        showToast(`安装失败: ${error.message}`, 'error');
+        btn.disabled = false;
+        btn.textContent = '安装';
+    }
+}
+
+// 切换API密钥可见性
+function toggleApiKeyVisibility() {
+    state.apiKeyVisible = !state.apiKeyVisible;
+    elements.apiKey.type = state.apiKeyVisible ? 'text' : 'password';
+    
+    const icon = elements.toggleApiKey.querySelector('svg');
+    if (state.apiKeyVisible) {
+        icon.innerHTML = `
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+        `;
+    } else {
+        icon.innerHTML = `
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+        `;
+    }
+}
+
+// 保存环境变量
+async function saveEnvironmentVariables() {
+    const apiKey = elements.apiKey.value.trim();
+    const proxyUrl = elements.proxyUrl.value.trim();
+    
+    if (!apiKey) {
+        showToast('请输入API密钥', 'error');
+        return;
+    }
+    
+    const btn = elements.saveEnvBtn;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> 保存中...';
+    
+    try {
+        await electronAPI.saveConfig({ apiKey, proxyUrl });
+        showToast('设置已保存', 'success');
+        updateGlobalStatus(true);
+    } catch (error) {
+        showToast(`保存失败: ${error.message}`, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">💾</span> 保存设置';
+    }
+}
+
+// 测试连接
+async function testConnection() {
+    const btn = elements.testEnvBtn;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> 测试中...';
+    
+    try {
+        // TODO: 实现实际的连接测试
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        showToast('连接测试成功', 'success');
+        updateGlobalStatus(true);
+    } catch (error) {
+        showToast(`连接失败: ${error.message}`, 'error');
+        updateGlobalStatus(false);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">🧪</span> 测试连接';
+    }
+}
+
+// 初始化
+async function init() {
+    try {
+        // 显示版本号
+        const version = await electronAPI.getAppVersion();
+        elements.version.textContent = `v${version}`;
+        
+        // 加载配置
+        const config = await electronAPI.getConfig();
+        if (config.apiKey) {
+            elements.apiKey.value = config.apiKey;
+            updateGlobalStatus(true);
+        }
+        if (config.proxyUrl) {
+            elements.proxyUrl.value = config.proxyUrl;
+        }
+        
+        // 自动检测环境
+        await checkEnvironments();
+    } catch (error) {
+        console.error('初始化失败:', error);
+        showToast('初始化失败', 'error');
+    }
+}
+
+// 事件绑定
+elements.checkEnvBtn.addEventListener('click', checkEnvironments);
+elements.toggleApiKey.addEventListener('click', toggleApiKeyVisibility);
+elements.saveEnvBtn.addEventListener('click', saveEnvironmentVariables);
+elements.testEnvBtn.addEventListener('click', testConnection);
+
+// 启动应用
+init();

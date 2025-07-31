@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+    <title>Claude Code Proxy Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="loading-styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="app-logo">
+                    <div class="logo-icon">C</div>
+                    <div class="logo-text">
+                        <h1>Claude Code</h1>
+                        <span class="version" id="version">Pro v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 配置文件列表 -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h3>配置文件</h3>
+                    <button class="add-profile-btn" id="addProfileBtn" title="添加配置">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <ul class="profile-list" id="profileList">
+                    <!-- 配置项将通过JS动态生成 -->
+                </ul>
+            </div>
+            
+            <!-- 快速操作 -->
+            <div class="sidebar-section sidebar-actions">
+                <button class="sidebar-btn" id="startClaudeCodeBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
+                        <path d="M12 22V12"></path>
+                        <path d="M12 12L2 7"></path>
+                        <path d="M12 12l10-5"></path>
+                    </svg>
+                    <span>启动 Claude Code</span>
+                </button>
+                <button class="sidebar-btn" id="openTerminalBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 17 10 11 4 5"></polyline>
+                        <line x1="12" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                    <span>打开终端</span>
+                </button>
+                <button class="sidebar-btn" id="exportScriptBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>导出脚本</span>
+                </button>
+                <button class="sidebar-btn" id="restoreOfficialBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M21 3v5h-5"></path>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M3 21v-5h5"></path>
+                    </svg>
+                    <span>还原官方设置</span>
+                </button>
+            </div>
+            
+            <!-- 底部状态 -->
+            <div class="sidebar-footer">
+                <!-- 代理状态 -->
+                <div class="proxy-status" id="proxyStatus">
+                    <div class="status-header">
+                        <span class="status-dot" id="proxyStatusDot"></span>
+                        <span class="status-title">代理状态</span>
+                    </div>
+                    <div class="status-details" id="proxyDetails">
+                        <span class="status-url" id="currentApiUrl">未启动</span>
+                    </div>
+                </div>
+                
+                <!-- 环境状态 -->
+                <div class="env-status" id="envStatus">
+                    <div class="env-item" data-env="nodejs">
+                        <span class="env-icon">📦</span>
+                        <span class="env-name">Node.js</span>
+                        <span class="env-status-icon" id="nodejs-status">⚪</span>
+                    </div>
+                    <div class="env-item" data-env="git">
+                        <span class="env-icon">🔀</span>
+                        <span class="env-name">Git</span>
+                        <span class="env-status-icon" id="git-status">⚪</span>
+                    </div>
+                    <div class="env-item" data-env="uv">
+                        <span class="env-icon">🐍</span>
+                        <span class="env-name">UV</span>
+                        <span class="env-status-icon" id="uv-status">⚪</span>
+                    </div>
+                    <div class="env-item" data-env="claude-code">
+                        <span class="env-icon">🤖</span>
+                        <span class="env-name">Claude</span>
+                        <span class="env-status-icon" id="claude-code-status">⚪</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部工具栏 -->
+            <div class="toolbar">
+                <h2 id="currentProfileName">默认配置</h2>
+            </div>
+            
+            <!-- 配置表单 -->
+            <div class="config-form" id="configForm">
+                <!-- 配置设置 -->
+                <section class="form-section">
+                    <h3 class="section-title">配置设置</h3>
+                    <div class="form-group">
+                        <label for="configName">配置名称</label>
+                        <input type="text" id="configName" class="form-input" placeholder="输入配置名称">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiUrl">API 地址</label>
+                        <input type="text" id="apiUrl" class="form-input" placeholder="https://api.openai.com/v1">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiKey">API 密钥</label>
+                        <div class="input-with-action">
+                            <input type="password" id="apiKey" class="form-input" placeholder="sk-...">
+                            <button class="input-action" id="toggleApiKey">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 隐藏的代理端口输入框 -->
+                    <input type="hidden" id="proxyPort" value="8082">
+                </section>
+                
+                <!-- 模型设置 -->
+                <section class="form-section">
+                    <h3 class="section-title">模型设置</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bigModel">大模型</label>
+                            <div class="select-wrapper">
+                                <select id="bigModel" class="form-select">
+                                    <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                                    <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (免费)</option>
+                                    <option value="grok-3">Grok 3</option>
+                                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                                    <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+                                    <option value="custom">自定义...</option>
+                                </select>
+                                <input type="text" id="customBigModel" class="form-input custom-model-input" placeholder="输入自定义模型名称" style="display: none;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="smallModel">小模型</label>
+                            <div class="select-wrapper">
+                                <select id="smallModel" class="form-select">
+                                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (免费)</option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    <option value="custom">自定义...</option>
+                                </select>
+                                <input type="text" id="customSmallModel" class="form-input custom-model-input" placeholder="输入自定义模型名称" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 操作按钮 -->
+                <div class="form-actions">
+                    <button class="btn btn-danger" id="deleteProfileBtn">删除配置</button>
+                    <button class="btn btn-secondary" id="testConfigBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        测试配置
+                    </button>
+                    <button class="btn btn-primary" id="saveProfileBtn">保存配置</button>
+                    <button class="btn btn-primary" id="startProxyBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        启动代理
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 空状态提示 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <h3>还没有配置文件</h3>
+                <p>点击左侧 "+" 按钮创建你的第一个配置</p>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast"></div>
+    
+    <!-- 加载遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <script src="error-handler.js"></script>
+    <script src="renderer-final.js"></script>
+</body>
+</html>

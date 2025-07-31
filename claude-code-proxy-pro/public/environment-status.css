@@ -1,0 +1,269 @@
+/* 环境状态显示相关样式 */
+
+/* 环境状态图标动画 */
+.env-status-icon {
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+}
+
+.env-status-icon.checking {
+    animation: spin 1s linear infinite;
+    opacity: 0.6;
+}
+
+.env-status-icon.installing {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.env-status-icon.error {
+    color: var(--error, #e74c3c);
+    animation: shake 0.5s ease-in-out;
+}
+
+.env-item {
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+
+.env-item[style*="cursor: pointer"]:hover {
+    background-color: var(--bg-hover, rgba(255, 255, 255, 0.05));
+    transform: translateX(2px);
+}
+
+/* 环境提示框 */
+.env-tooltip {
+    position: fixed;
+    background: var(--bg-secondary, #2a2a2a);
+    border: 1px solid var(--border-color, #444);
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    max-width: 300px;
+    display: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.env-tooltip.install-tooltip {
+    background: var(--bg-warning, #3a3530);
+    border-color: var(--warning, #f39c12);
+}
+
+.tooltip-header {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color, #444);
+}
+
+.tooltip-content {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.tooltip-content code {
+    display: block;
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+/* 安装对话框 */
+.install-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease;
+}
+
+.install-dialog {
+    background: var(--bg-primary, #1a1a1a);
+    border: 1px solid var(--border-color, #444);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+.install-dialog h3 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    color: var(--text-primary, #fff);
+}
+
+.install-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.install-option {
+    padding: 16px;
+    background: var(--bg-secondary, #2a2a2a);
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #444);
+}
+
+.install-option h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: var(--text-primary, #fff);
+}
+
+.install-option p {
+    margin: 0 0 12px 0;
+    color: var(--text-secondary, #999);
+    font-size: 14px;
+}
+
+.code-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.code-block code {
+    flex: 1;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    color: var(--text-primary, #fff);
+    word-break: break-all;
+}
+
+.copy-btn {
+    background: transparent;
+    border: 1px solid var(--border-color, #444);
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--text-secondary, #999);
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.1));
+    color: var(--text-primary, #fff);
+}
+
+.install-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-warning, #3a3530);
+    border: 1px solid var(--warning, #f39c12);
+    border-radius: 6px;
+    color: var(--warning, #f39c12);
+    font-size: 14px;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color, #444);
+}
+
+/* 依赖提示 */
+.dependency-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-warning, #3a3530);
+    border: 1px solid var(--warning, #f39c12);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 3000;
+    animation: slideInRight 0.3s ease;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--warning, #f39c12);
+}
+
+/* 动画定义 */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from { 
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .install-dialog {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .env-tooltip {
+        max-width: 250px;
+        font-size: 13px;
+    }
+    
+    .code-block code {
+        font-size: 12px;
+    }
+}

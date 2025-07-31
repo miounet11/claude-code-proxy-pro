@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Proxy Pro - 新版UI预览</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0e1a;
+            color: #e4e6eb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .preview-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .preview-header p {
+            color: #a8b0bf;
+            font-size: 16px;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .preview-card {
+            background: #1a202e;
+            border: 1px solid #2d3548;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-card h3 {
+            margin-bottom: 15px;
+            color: #6366f1;
+        }
+        
+        .preview-card a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-card a:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 10px;
+            color: #a8b0bf;
+        }
+        
+        .screenshots {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .screenshots h2 {
+            margin-bottom: 20px;
+            color: #6366f1;
+        }
+        
+        .screenshot-info {
+            background: #141925;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 800px;
+            border: 1px solid #2d3548;
+        }
+        
+        .highlight {
+            color: #10b981;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-header">
+        <h1>Claude Code Proxy Pro - 新版UI设计</h1>
+        <p>现代化的侧边栏导航 + 多配置文件管理系统</p>
+    </div>
+    
+    <div class="preview-grid">
+        <div class="preview-card">
+            <h3>🎨 查看新版界面</h3>
+            <ul class="feature-list">
+                <li>左侧侧边栏导航设计</li>
+                <li>支持最多10个配置文件</li>
+                <li>现代化深色主题</li>
+                <li>流畅的动画效果</li>
+            </ul>
+            <a href="index-new.html">打开新版界面</a>
+        </div>
+        
+        <div class="preview-card">
+            <h3>📦 查看原版界面</h3>
+            <ul class="feature-list">
+                <li>卡片式布局</li>
+                <li>单配置管理</li>
+                <li>传统操作流程</li>
+                <li>基础功能实现</li>
+            </ul>
+            <a href="index.html">打开原版界面</a>
+        </div>
+    </div>
+    
+    <div class="screenshots">
+        <h2>新版UI特性说明</h2>
+        <div class="screenshot-info">
+            <h3>✨ 主要改进</h3>
+            <ul class="feature-list">
+                <li><span class="highlight">侧边栏导航</span>：采用固定侧边栏设计，配置文件一目了然</li>
+                <li><span class="highlight">多配置管理</span>：支持创建和管理最多10个不同的API配置</li>
+                <li><span class="highlight">默认免费配置</span>：预设免费API配置，开箱即用</li>
+                <li><span class="highlight">模型选择优化</span>：预设主流大小模型，支持自定义输入</li>
+                <li><span class="highlight">视觉优化</span>：更现代的配色方案和交互动画</li>
+                <li><span class="highlight">状态指示</span>：清晰的在线/离线状态显示</li>
+                <li><span class="highlight">快速操作</span>：集成终端打开、脚本导出等快捷功能</li>
+            </ul>
+            
+            <h3>🎯 用户体验提升</h3>
+            <ul class="feature-list">
+                <li>配置切换更便捷，点击即可切换不同配置</li>
+                <li>表单分组更清晰，基础设置、API设置、模型设置分开展示</li>
+                <li>实时保存提示，操作反馈更及时</li>
+                <li>空状态引导，新用户上手更容易</li>
+            </ul>
+            
+            <h3>🔧 技术实现</h3>
+            <ul class="feature-list">
+                <li>使用CSS Grid和Flexbox实现响应式布局</li>
+                <li>CSS变量系统，便于主题定制</li>
+                <li>模块化JavaScript架构，代码更易维护</li>
+                <li>优化的动画性能，界面更流畅</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

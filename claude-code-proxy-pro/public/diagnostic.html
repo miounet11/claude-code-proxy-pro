@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <title>Claude Code Proxy Pro - 诊断工具</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .diagnostic-section {
+            margin: 20px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+        .status-ok {
+            color: var(--success);
+        }
+        .status-error {
+            color: var(--error);
+        }
+        .diagnostic-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+        pre {
+            background: var(--bg-primary);
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-section">
+        <h1>Claude Code Proxy Pro 诊断工具</h1>
+        
+        <h2>1. Electron API 检查</h2>
+        <div id="electronCheck" class="diagnostic-item"></div>
+
+        <h2>2. DOM 元素检查</h2>
+        <div id="domCheck" class="diagnostic-item"></div>
+
+        <h2>3. JavaScript 错误</h2>
+        <div id="jsErrors" class="diagnostic-item">
+            <pre id="errorLog">没有捕获到错误</pre>
+        </div>
+
+        <h2>4. 事件监听器检查</h2>
+        <div id="eventCheck" class="diagnostic-item"></div>
+
+        <h2>5. 脚本加载状态</h2>
+        <div id="scriptCheck" class="diagnostic-item"></div>
+
+        <h2>6. 修复建议</h2>
+        <div id="suggestions" class="diagnostic-item"></div>
+    </div>
+
+    <script>
+        // 错误收集
+        const errors = [];
+        window.addEventListener('error', (e) => {
+            errors.push({
+                message: e.message,
+                source: e.filename,
+                line: e.lineno,
+                col: e.colno,
+                error: e.error
+            });
+            updateErrorLog();
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            errors.push({
+                message: 'Unhandled Promise Rejection',
+                reason: e.reason
+            });
+            updateErrorLog();
+        });
+
+        function updateErrorLog() {
+            const log = document.getElementById('errorLog');
+            log.textContent = JSON.stringify(errors, null, 2);
+        }
+
+        // 诊断函数
+        function runDiagnostics() {
+            // 1. 检查 Electron API
+            const electronCheck = document.getElementById('electronCheck');
+            if (window.electronAPI) {
+                const methods = Object.keys(window.electronAPI);
+                electronCheck.innerHTML = `
+                    <span class="status-ok">✅ ElectronAPI 已加载</span>
+                    <p>可用方法: ${methods.join(', ')}</p>
+                `;
+            } else {
+                electronCheck.innerHTML = `
+                    <span class="status-error">❌ ElectronAPI 未定义</span>
+                    <p>可能原因: preload 脚本未正确加载或运行在非 Electron 环境中</p>
+                `;
+            }
+
+            // 2. 检查 DOM 元素
+            const domCheck = document.getElementById('domCheck');
+            const requiredIds = [
+                'version', 'globalStatus', 'environmentList', 'checkEnvBtn',
+                'apiKey', 'apiUrl', 'modelSelect', 'proxyPort', 'toggleApiKey',
+                'envPreview', 'saveEnvBtn', 'testEnvBtn', 'startClaudeBtn',
+                'openTerminalBtn', 'copyEnvBtn', 'exportScriptBtn', 'resetConfigBtn', 'toast'
+            ];
+            
+            const missingElements = [];
+            const foundElements = [];
+            
+            requiredIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    foundElements.push(id);
+                } else {
+                    missingElements.push(id);
+                }
+            });
+
+            domCheck.innerHTML = `
+                <p class="status-ok">✅ 找到的元素 (${foundElements.length}): ${foundElements.join(', ')}</p>
+                ${missingElements.length > 0 ? 
+                    `<p class="status-error">❌ 缺失的元素 (${missingElements.length}): ${missingElements.join(', ')}</p>` : 
+                    '<p class="status-ok">✅ 所有必需元素都存在</p>'
+                }
+            `;
+
+            // 3. 检查事件监听器
+            const eventCheck = document.getElementById('eventCheck');
+            const testBtn = document.getElementById('checkEnvBtn');
+            if (testBtn) {
+                // 检查是否可以添加事件监听器
+                try {
+                    testBtn.addEventListener('click', () => {
+                        console.log('测试按钮点击成功');
+                    });
+                    eventCheck.innerHTML = '<span class="status-ok">✅ 事件监听器可以正常添加</span>';
+                } catch (e) {
+                    eventCheck.innerHTML = `<span class="status-error">❌ 无法添加事件监听器: ${e.message}</span>`;
+                }
+            } else {
+                eventCheck.innerHTML = '<span class="status-error">❌ 找不到测试按钮</span>';
+            }
+
+            // 4. 检查脚本加载
+            const scriptCheck = document.getElementById('scriptCheck');
+            const scripts = {
+                'ErrorHandler': typeof window.ErrorHandler !== 'undefined',
+                'showToast': typeof window.showToast === 'function',
+                'renderer-enhanced.js': document.querySelector('script[src*="renderer-enhanced"]') !== null,
+                'error-handler.js': document.querySelector('script[src*="error-handler"]') !== null
+            };
+
+            const scriptStatus = Object.entries(scripts).map(([name, loaded]) => 
+                `<p class="${loaded ? 'status-ok' : 'status-error'}">${loaded ? '✅' : '❌'} ${name}</p>`
+            ).join('');
+            
+            scriptCheck.innerHTML = scriptStatus;
+
+            // 5. 生成修复建议
+            const suggestions = document.getElementById('suggestions');
+            const suggestionList = [];
+
+            if (!window.electronAPI) {
+                suggestionList.push('确保应用在 Electron 环境中运行');
+                suggestionList.push('检查 main.js 中的 preload 脚本路径配置');
+            }
+
+            if (missingElements.length > 0) {
+                suggestionList.push('检查 index.html 文件，确保所有必需的元素都有正确的 ID');
+                suggestionList.push('确保在正确的 HTML 文件中运行应用');
+            }
+
+            if (errors.length > 0) {
+                suggestionList.push('修复 JavaScript 错误，查看错误日志了解详情');
+            }
+
+            suggestions.innerHTML = suggestionList.length > 0 ? 
+                `<ul>${suggestionList.map(s => `<li>${s}</li>`).join('')}</ul>` :
+                '<p class="status-ok">✅ 没有发现明显问题</p>';
+        }
+
+        // 页面加载完成后运行诊断
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runDiagnostics);
+        } else {
+            runDiagnostics();
+        }
+    </script>
+</body>
+</html>
