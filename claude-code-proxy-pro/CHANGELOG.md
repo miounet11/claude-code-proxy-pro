@@ -2,6 +2,34 @@
 
 All notable changes to Claude Code Proxy Pro will be documented in this file.
 
+## [3.3.1] - 2025-07-31
+
+### Security Fixes 🔒
+- **Critical**: Removed hardcoded API keys from source code
+- **Critical**: Fixed path traversal vulnerabilities with new PathValidator
+- Enhanced security for file operations across the application
+- Improved input validation and sanitization
+
+### Bug Fixes 🐛
+- Fixed environment detection commands for Node.js and Claude Code
+- Fixed "dialog module can only be used after app is ready" startup error
+- Fixed manager initialization timing issues
+- Improved Windows terminal command escaping
+- Added missing uuid dependency
+
+### Improvements 🚀
+- Added comprehensive security validation for all file paths
+- Enhanced error handling with proper app lifecycle management
+- Improved cross-platform compatibility
+- Better logging security (no more sensitive data in logs)
+
+### Phase 1 Completion 🎯
+This release marks the completion of Phase 1 development with:
+- Core proxy functionality stable and secure
+- Multi-language support (Chinese, English, Japanese, Traditional Chinese)
+- Environment auto-detection and installation
+- Cross-platform packaging (Windows, macOS, Linux)
+
 ## [3.0.1] - 2025-07-31
 
 ### Critical Fixes

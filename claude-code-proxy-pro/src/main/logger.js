@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { app } = require('electron');
+const PathValidator = require('./path-validator');
 
 /**
  * 日志级别
@@ -24,7 +25,8 @@ class Logger {
     this.enableFile = options.enableFile !== false;
     
     // 创建日志目录
-    this.logDir = path.join(app.getPath('userData'), 'logs');
+    const userDataPath = app.getPath('userData');
+    this.logDir = PathValidator.safeJoin(userDataPath, 'logs');
     if (this.enableFile) {
       this.ensureLogDirectory();
     }

@@ -19,7 +19,7 @@ class ProfileManager {
       id: 'default',
       name: '免费配置',
       apiUrl: 'http://www.miaoda.vip/v1',
-      apiKey: 'sk-3vxiV5wctLaERpZ6F7ap0Ys4nh0cmE1uK9NNmYg08DcHzQ44',
+      apiKey: process.env.ANTHROPIC_API_KEY || '',
       bigModel: 'claude-3-7-sonnet-20250219',
       smallModel: 'claude-3-5-haiku-20241022',
       proxyPort: 8082,
