@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "Claude Code Proxy Pro",
+    "version": "版本"
+  },
+  "sidebar": {
+    "profiles": "配置文件",
+    "addProfile": "添加配置",
+    "startClaude": "启动 Claude Code",
+    "openTerminal": "打开终端",
+    "exportScript": "导出脚本",
+    "restoreOfficial": "还原官方设置",
+    "environmentStatus": "环境状态"
+  },
+  "main": {
+    "proxyStatus": "代理状态",
+    "running": "运行中",
+    "stopped": "已停止",
+    "currentAPI": "当前 API",
+    "configSettings": "配置设置",
+    "modelSettings": "模型设置",
+    "profileName": "配置名称",
+    "apiAddress": "API 地址",
+    "apiKey": "API 密钥",
+    "bigModel": "大模型",
+    "smallModel": "小模型",
+    "saveConfig": "保存配置",
+    "environment": "环境配置",
+    "checkEnvironment": "检查环境",
+    "reinstallAll": "全部重装",
+    "operations": "快速操作",
+    "startProxy": "启动代理",
+    "stopProxy": "停止代理",
+    "copyEnvVars": "复制环境变量",
+    "envPreview": "环境变量预览",
+    "noProfiles": "还没有配置文件",
+    "createFirstProfile": "点击左侧 \"+\" 按钮创建你的第一个配置"
+  },
+  "messages": {
+    "proxyStarted": "代理已启动",
+    "proxyStopped": "代理已停止",
+    "proxyError": "代理启动失败",
+    "configSaved": "配置已保存",
+    "configError": "保存配置失败",
+    "envCopied": "环境变量已复制到剪贴板",
+    "scriptExported": "脚本已导出",
+    "restoreConfirm": "确定要还原官方设置吗？这将删除所有自定义配置。",
+    "restoreSuccess": "已还原官方设置",
+    "deleteProfileConfirm": "确定要删除配置 {{name}} 吗？",
+    "profileDeleted": "配置已删除",
+    "maxProfilesReached": "最多只能创建 10 个配置文件"
+  },
+  "errors": {
+    "networkError": "网络错误",
+    "invalidConfig": "配置无效",
+    "portInUse": "端口已被占用",
+    "apiKeyRequired": "请输入 API 密钥",
+    "profileNameRequired": "请输入配置名称"
+  },
+  "status": {
+    "installed": "已安装",
+    "notInstalled": "未安装",
+    "installing": "安装中...",
+    "checking": "检查中..."
+  },
+  "buttons": {
+    "install": "安装",
+    "reinstall": "重装",
+    "cancel": "取消",
+    "confirm": "确定",
+    "close": "关闭",
+    "delete": "删除配置",
+    "test": "测试配置"
+  },
+  "profiles": {
+    "freeConfig": "免费配置",
+    "defaultConfig": "默认配置"
+  }
+}

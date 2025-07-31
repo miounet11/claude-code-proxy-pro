@@ -11,9 +11,19 @@ class UpdateManager {
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
     
-    // 设置更新检查间隔（仅在生产环境）
+    // 设置正确的 GitHub 更新源
     if (process.env.NODE_ENV !== 'development') {
-      autoUpdater.checkForUpdatesAndNotify();
+      autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'miounet11',
+        repo: 'claude-code-proxy-pro',
+        releaseType: 'release'
+      });
+      
+      // 延迟检查更新，避免启动时的网络问题
+      setTimeout(() => {
+        autoUpdater.checkForUpdatesAndNotify();
+      }, 5000);
     }
     
     this.setupEventHandlers();
@@ -70,12 +80,25 @@ class UpdateManager {
       logger.error('Updater', '更新检查失败', err);
       this.sendStatusToWindow('update-error', err);
       
-      if (this.isManualCheck) {
+      // 处理常见错误
+      let errorMessage = err.message;
+      let shouldShowDialog = this.isManualCheck;
+      
+      if (err.message.includes('404') || err.message.includes('Not Found')) {
+        errorMessage = '更新服务器暂时不可用，请稍后再试';
+        shouldShowDialog = false; // 404错误不显示对话框，避免打扰用户
+        logger.info('Updater', 'Repository not found, silently ignoring update check');
+      } else if (err.message.includes('ENOTFOUND') || err.message.includes('network')) {
+        errorMessage = '网络连接失败，无法检查更新';
+        shouldShowDialog = this.isManualCheck;
+      }
+      
+      if (shouldShowDialog) {
         dialog.showMessageBox(this.mainWindow, {
           type: 'error',
           title: '更新失败',
           message: '检查更新时发生错误',
-          detail: err.message
+          detail: errorMessage
         });
       }
     });

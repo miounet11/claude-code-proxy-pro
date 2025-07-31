@@ -1,114 +1,145 @@
-# Claude Code Proxy Pro 🚀
+# Claude Code Proxy Pro
 
-一个为 Claude Code 设计的极简 Electron 桌面应用，提供环境管理和代理服务功能。
+[简体中文](README.zh-CN.md) | English | [日本語](README.ja.md) | [繁體中文](README.zh-TW.md)
 
-## ✨ 特性
+Claude Code Proxy Pro is an efficient Claude Code proxy tool that helps developers easily configure and manage Claude API proxies, supporting multiple models and configuration profiles.
 
-- **🔧 环境一键安装** - 自动检测并安装 Node.js、Git、UV、Claude Code
-- **🌐 智能代理管理** - 自动端口分配，支持多种 AI 模型
-- **🎨 现代化界面** - 深色主题，响应式设计
-- **⚡ 极简实现** - 核心代码仅 400+ 行
-- **🔒 安全可靠** - 完善的错误处理和日志系统
+## Features
 
-## 📦 安装
+- 🚀 **One-Click Start**: Simple interface for quick proxy service startup
+- 🔧 **Multi-Profile Management**: Support up to 10 configuration profiles with easy switching
+- 🌐 **Multi-Language Support**: Supports Simplified Chinese, English, Japanese, and Traditional Chinese
+- 🎨 **Modern UI**: Beautiful dark theme interface with smooth interactions
+- 🔒 **Secure and Reliable**: Encrypted storage of sensitive information with comprehensive error handling
+- 🖥️ **Cross-Platform**: Supports Windows, macOS, and Linux
+- 🔄 **Auto-Update**: Built-in automatic update mechanism
+- 📊 **Environment Detection**: Automatically checks and installs required components
 
-### 下载预构建版本
-访问 [Releases](https://github.com/your-username/claude-code-proxy-pro/releases) 页面下载适合您系统的版本。
+## System Requirements
 
-### 从源码构建
+- Node.js 16.0 or higher
+- Git
+- Operating System: Windows 10+, macOS 10.15+, or Linux
+
+## Installation
+
+### Download Pre-built Version
+
+Visit the [Releases](https://github.com/miounet11/claude-code-proxy-pro/releases) page to download the installer for your platform:
+
+- Windows: `.exe` installer
+- macOS: `.dmg` installer
+- Linux: `.AppImage` or `.deb` package
+
+### Build from Source
 
 ```bash
-# 克隆项目
-git clone https://github.com/your-username/claude-code-proxy-pro.git
+# Clone repository
+git clone https://github.com/miounet11/claude-code-proxy-pro.git
 cd claude-code-proxy-pro
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 运行开发版
+# Start development version
 npm start
 
-# 构建安装包
+# Build for your platform
 npm run build
 ```
 
-## 🚀 使用方法
+## Usage
 
-1. **环境检测**
-   - 启动应用后，点击"重新检测"查看环境状态
-   - 点击"一键安装全部"安装缺失的组件
+1. **First Launch**
+   - The application will automatically check the environment
+   - Install missing components if needed
 
-2. **配置代理**
-   - 填写您的 API 密钥
-   - 选择 API 地址（支持第三方）
-   - 选择 AI 模型（大/中/小）
-   - 设置代理端口（默认 8082）
+2. **Configure Proxy**
+   - Click "Add Profile" to create a new configuration
+   - Enter API address, API key, and select models
+   - Save configuration
 
-3. **启动服务**
-   - 点击"测试配置"验证设置
-   - 点击"启动 Claude Code"开始使用
+3. **Start Proxy**
+   - Select a configuration profile
+   - Click "Start Proxy" button
+   - The proxy will run on the default port 8082
 
-## 🛠️ 技术栈
+4. **Start Claude Code**
+   - After proxy is running, click "Start Claude Code"
+   - Use environment variables to connect to the proxy
 
-- **Electron** - 跨平台桌面应用框架
-- **Node.js** - JavaScript 运行环境
-- **Express** - Web 服务器框架
-- **http-proxy-middleware** - 代理中间件
+## Configuration
 
-## 📁 项目结构
+### Environment Variables
 
-```
-claude-code-proxy-pro/
-├── src/
-│   ├── main/              # 主进程
-│   │   ├── main.js        # 应用入口
-│   │   ├── proxy-manager.js    # 代理管理
-│   │   ├── environment.js      # 环境检测
-│   │   └── config-manager.js   # 配置管理
-│   ├── renderer/          # 渲染进程
-│   └── preload/           # 预加载脚本
-├── public/                # 静态资源
-├── test/                  # 测试文件
-└── scripts/               # 构建脚本
-```
-
-## 🔧 开发
+The application automatically sets the following environment variables:
 
 ```bash
-# 运行测试
-npm test
-
-# 运行开发模式（带开发者工具）
-npm run dev
-
-# 生成图标
-npm run icons
-
-# 发布新版本
-npm run release
+export ANTHROPIC_BASE_URL=http://localhost:8082/v1
+export ANTHROPIC_API_KEY=your-api-key
 ```
 
-## 📝 配置说明
+### Configuration File Structure
 
-应用配置保存在：
+Configuration files are stored in:
 - Windows: `%APPDATA%/claude-code-proxy-pro`
 - macOS: `~/Library/Application Support/claude-code-proxy-pro`
 - Linux: `~/.config/claude-code-proxy-pro`
 
-## 🤝 贡献
+## Development
 
-欢迎提交 Pull Request 或创建 Issue！
+### Project Structure
 
-## 📄 许可证
+```
+claude-code-proxy-pro/
+├── src/
+│   ├── main/          # Main process modules
+│   ├── renderer/      # Renderer process
+│   └── preload/       # Preload scripts
+├── public/            # Static resources
+├── locales/           # Language files
+├── test/              # Test files
+└── scripts/           # Build scripts
+```
 
-MIT License
+### Development Commands
 
-## 🙏 致谢
+```bash
+# Start development mode
+npm run dev
 
-- Claude Code 团队
-- Electron 社区
-- 所有贡献者
+# Run tests
+npm test
 
----
+# Build for all platforms
+npm run build:all
 
-**注意**: 使用本应用需要有效的 API 密钥。
+# Generate icons
+npm run icons
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built with [Electron](https://www.electronjs.org/)
+- UI design inspired by modern developer tools
+- Thanks to all contributors and users
+
+## Support
+
+If you encounter any issues or have suggestions:
+- Submit an issue on [GitHub Issues](https://github.com/miounet11/claude-code-proxy-pro/issues)
+- Contact: support@claude-code-proxy.com

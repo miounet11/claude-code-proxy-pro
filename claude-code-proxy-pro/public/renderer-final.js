@@ -23,12 +23,19 @@ class ProxyManager {
     
     async init() {
         await this.waitForDOM();
+        
+        // 初始化国际化
+        await window.i18n.init();
+        
         this.cacheElements();
         this.bindEvents();
         await this.loadProfiles();
         this.updateUI();
         await this.checkEnvironments();
         await this.checkProxyStatus();
+        
+        // 创建语言选择器
+        this.createLanguageSelector();
     }
     
     waitForDOM() {
@@ -960,6 +967,50 @@ echo "代理端口: $PROXY_PORT"
             this.showToast(`还原失败: ${error.message}`, 'error');
         } finally {
             this.showLoading(false);
+        }
+    }
+    
+    // 创建语言选择器
+    createLanguageSelector() {
+        const container = document.querySelector('.language-selector-container');
+        if (!container) return;
+        
+        const selector = window.i18n.createLanguageSelector();
+        container.appendChild(selector);
+        
+        // 监听语言变化，更新动态内容
+        window.i18n.addListener((locale) => {
+            // 更新配置文件列表中的动态文本
+            this.updateProfileListTexts();
+            // 更新其他动态内容
+            this.updateDynamicTexts();
+        });
+    }
+    
+    // 更新配置文件列表中的动态文本
+    updateProfileListTexts() {
+        // 更新配置文件列表中的文本，这些是动态生成的
+        const profileItems = document.querySelectorAll('.profile-item');
+        profileItems.forEach(item => {
+            const nameSpan = item.querySelector('.profile-name');
+            if (nameSpan && nameSpan.textContent === '免费配置') {
+                nameSpan.textContent = window.i18n.t('profiles.freeConfig') || '免费配置';
+            }
+        });
+    }
+    
+    // 更新其他动态文本
+    updateDynamicTexts() {
+        // 更新状态显示
+        const statusUrl = document.getElementById('currentApiUrl');
+        if (statusUrl && statusUrl.textContent === '未启动') {
+            statusUrl.textContent = window.i18n.t('main.stopped');
+        }
+        
+        // 更新当前配置名称（如果是默认配置）
+        const profileName = document.getElementById('currentProfileName');
+        if (profileName && profileName.textContent === '默认配置') {
+            profileName.textContent = window.i18n.t('profiles.defaultConfig') || '默认配置';
         }
     }
 }

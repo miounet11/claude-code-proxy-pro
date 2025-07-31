@@ -1,0 +1,70 @@
+{
+  "app": {
+    "title": "Claude Code Proxy Pro",
+    "version": "バージョン"
+  },
+  "sidebar": {
+    "profiles": "プロファイル",
+    "addProfile": "プロファイル追加",
+    "startClaude": "Claude Code を起動",
+    "openTerminal": "ターミナルを開く",
+    "exportScript": "スクリプトをエクスポート",
+    "restoreOfficial": "公式設定に戻す",
+    "environmentStatus": "環境ステータス"
+  },
+  "main": {
+    "proxyStatus": "プロキシステータス",
+    "running": "実行中",
+    "stopped": "停止",
+    "currentAPI": "現在のAPI",
+    "configSettings": "設定",
+    "profileName": "プロファイル名",
+    "apiAddress": "APIアドレス",
+    "apiKey": "APIキー",
+    "bigModel": "大規模モデル",
+    "smallModel": "小規模モデル",
+    "saveConfig": "設定を保存",
+    "environment": "環境設定",
+    "checkEnvironment": "環境をチェック",
+    "reinstallAll": "すべて再インストール",
+    "operations": "クイックアクション",
+    "startProxy": "プロキシを開始",
+    "stopProxy": "プロキシを停止",
+    "copyEnvVars": "環境変数をコピー",
+    "envPreview": "環境変数プレビュー"
+  },
+  "messages": {
+    "proxyStarted": "プロキシが正常に開始されました",
+    "proxyStopped": "プロキシが停止しました",
+    "proxyError": "プロキシの開始に失敗しました",
+    "configSaved": "設定が保存されました",
+    "configError": "設定の保存に失敗しました",
+    "envCopied": "環境変数がクリップボードにコピーされました",
+    "scriptExported": "スクリプトが正常にエクスポートされました",
+    "restoreConfirm": "公式設定に戻してもよろしいですか？すべてのカスタム設定が削除されます。",
+    "restoreSuccess": "公式設定に戻しました",
+    "deleteProfileConfirm": "プロファイル {{name}} を削除してもよろしいですか？",
+    "profileDeleted": "プロファイルが削除されました",
+    "maxProfilesReached": "最大10個のプロファイルまで作成できます"
+  },
+  "errors": {
+    "networkError": "ネットワークエラー",
+    "invalidConfig": "無効な設定",
+    "portInUse": "ポートは既に使用されています",
+    "apiKeyRequired": "APIキーを入力してください",
+    "profileNameRequired": "プロファイル名を入力してください"
+  },
+  "status": {
+    "installed": "インストール済み",
+    "notInstalled": "未インストール",
+    "installing": "インストール中...",
+    "checking": "チェック中..."
+  },
+  "buttons": {
+    "install": "インストール",
+    "reinstall": "再インストール",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "close": "閉じる"
+  }
+}

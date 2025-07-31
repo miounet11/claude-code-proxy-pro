@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "Claude Code Proxy Pro",
+    "version": "Version"
+  },
+  "sidebar": {
+    "profiles": "Profiles",
+    "addProfile": "Add Profile",
+    "startClaude": "Start Claude Code",
+    "openTerminal": "Open Terminal",
+    "exportScript": "Export Script",
+    "restoreOfficial": "Restore Official",
+    "environmentStatus": "Environment Status"
+  },
+  "main": {
+    "proxyStatus": "Proxy Status",
+    "running": "Running",
+    "stopped": "Stopped",
+    "currentAPI": "Current API",
+    "configSettings": "Configuration",
+    "modelSettings": "Model Settings",
+    "profileName": "Profile Name",
+    "apiAddress": "API Address",
+    "apiKey": "API Key",
+    "bigModel": "Large Model",
+    "smallModel": "Small Model",
+    "saveConfig": "Save Config",
+    "environment": "Environment",
+    "checkEnvironment": "Check Environment",
+    "reinstallAll": "Reinstall All",
+    "operations": "Quick Actions",
+    "startProxy": "Start Proxy",
+    "stopProxy": "Stop Proxy",
+    "copyEnvVars": "Copy Env Variables",
+    "envPreview": "Environment Preview",
+    "noProfiles": "No profiles yet",
+    "createFirstProfile": "Click the \"+\" button on the left to create your first profile"
+  },
+  "messages": {
+    "proxyStarted": "Proxy started successfully",
+    "proxyStopped": "Proxy stopped",
+    "proxyError": "Failed to start proxy",
+    "configSaved": "Configuration saved",
+    "configError": "Failed to save configuration",
+    "envCopied": "Environment variables copied to clipboard",
+    "scriptExported": "Script exported successfully",
+    "restoreConfirm": "Are you sure you want to restore official settings? This will delete all custom configurations.",
+    "restoreSuccess": "Official settings restored",
+    "deleteProfileConfirm": "Are you sure you want to delete profile {{name}}?",
+    "profileDeleted": "Profile deleted",
+    "maxProfilesReached": "Maximum 10 profiles allowed"
+  },
+  "errors": {
+    "networkError": "Network error",
+    "invalidConfig": "Invalid configuration",
+    "portInUse": "Port already in use",
+    "apiKeyRequired": "API key is required",
+    "profileNameRequired": "Profile name is required"
+  },
+  "status": {
+    "installed": "Installed",
+    "notInstalled": "Not Installed",
+    "installing": "Installing...",
+    "checking": "Checking..."
+  },
+  "buttons": {
+    "install": "Install",
+    "reinstall": "Reinstall",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "delete": "Delete Profile",
+    "test": "Test Config"
+  },
+  "profiles": {
+    "freeConfig": "Free Config",
+    "defaultConfig": "Default Config"
+  }
+}

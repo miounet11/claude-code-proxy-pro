@@ -10,6 +10,7 @@ const ProfileManager = require('./profile-manager');
 const { logger } = require('./logger');
 const { errorHandler, ErrorType } = require('./error-handler');
 const UpdateManager = require('./updater');
+const i18n = require('./i18n');
 
 // 禁用 GPU 加速以避免崩溃
 app.disableHardwareAcceleration();
@@ -19,23 +20,32 @@ app.commandLine.appendSwitch('disable-gpu-sandbox');
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-software-rasterizer');
 
-// 初始化配置管理器
-const configManager = new ConfigManager();
+// 延迟初始化的管理器实例
+let configManager = null;
+let profileManager = null;
+let proxyManager = null;
+let updateManager = null;
 
-// 初始化配置文件管理器
-const profileManager = new ProfileManager();
-
-// 初始化代理管理器
-const proxyManager = new ProxyManager();
-
-// 初始化更新管理器
-const updateManager = new UpdateManager();
-
-// 记录应用启动
-logger.info('Main', 'Application starting', {
-  version: app.getVersion(),
-  platform: process.platform
-});
+// 初始化函数
+function initializeManagers() {
+  // 初始化配置管理器
+  configManager = new ConfigManager();
+  
+  // 初始化配置文件管理器
+  profileManager = new ProfileManager();
+  
+  // 初始化代理管理器
+  proxyManager = new ProxyManager();
+  
+  // 初始化更新管理器
+  updateManager = new UpdateManager();
+  
+  // 记录应用启动
+  logger.info('Main', 'Application starting', {
+    version: app.getVersion(),
+    platform: process.platform
+  });
+}
 
 // 保持窗口引用，防止被垃圾回收
 let mainWindow = null;
@@ -80,6 +90,12 @@ function createWindow() {
 
 // 应用就绪事件
 app.whenReady().then(() => {
+  // 首先初始化管理器
+  initializeManagers();
+  
+  // 初始化多语言系统
+  i18n.init();
+  
   createWindow();
   
   // 设置更新管理器的主窗口
@@ -96,7 +112,9 @@ app.whenReady().then(() => {
 // 所有窗口关闭时退出应用（Windows/Linux）
 app.on('window-all-closed', () => {
   // 停止代理服务
-  proxyManager.stop();
+  if (proxyManager) {
+    proxyManager.stop();
+  }
   
   if (process.platform !== 'darwin') {
     app.quit();
@@ -106,7 +124,9 @@ app.on('window-all-closed', () => {
 // 应用退出前清理
 app.on('before-quit', () => {
   logger.info('Main', 'Application shutting down');
-  proxyManager.stop();
+  if (proxyManager) {
+    proxyManager.stop();
+  }
   logger.info('Main', 'Cleanup completed');
 });
 
@@ -304,6 +324,27 @@ ipcMain.handle('get-version', () => {
   return app.getVersion();
 });
 
+// 多语言相关IPC
+ipcMain.handle('get-locale', () => {
+  return i18n.getLocale();
+});
+
+ipcMain.handle('set-locale', (_, locale) => {
+  const success = i18n.setLocale(locale);
+  if (success && mainWindow) {
+    mainWindow.webContents.send('locale-changed', locale);
+  }
+  return { success };
+});
+
+ipcMain.handle('get-translations', () => {
+  return i18n.translations[i18n.getLocale()] || {};
+});
+
+ipcMain.handle('get-supported-locales', () => {
+  return i18n.getSupportedLocales();
+});
+
 ipcMain.handle('test-config', async (_, config) => {
   try {
     const response = await axios.post(config.apiUrl + '/chat/completions', {
@@ -327,9 +368,7 @@ ipcMain.handle('test-config', async (_, config) => {
   }
 });
 
-// 注意：start-proxy 和 stop-proxy 已经在上面注册过了，这里只需要添加状态通知功能
-// 监听代理状态变化并通知渲染进程
-proxyManager.on = proxyManager.on || function() {};  // 如果代理管理器支持事件
+// 注意：start-proxy 和 stop-proxy 已经在上面注册过了
 
 ipcMain.handle('open-terminal', async () => {
   try {

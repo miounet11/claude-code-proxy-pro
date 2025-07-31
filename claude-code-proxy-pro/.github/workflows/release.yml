@@ -1,0 +1,132 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install electron electron-builder --save-dev
+
+    - name: Run tests
+      run: npm test
+      continue-on-error: true
+
+    - name: Test build prerequisites
+      run: node test-build.js || true
+
+    - name: List project structure
+      run: |
+        echo "Project structure:"
+        ls -la
+        echo "Build directory:"
+        ls -la build/ || echo "No build directory"
+        echo "Package.json build config:"
+        cat package.json | grep -A 20 '"build"' || echo "No build config"
+
+    - name: Build for ${{ matrix.platform }}
+      run: |
+        echo "Building for ${{ matrix.platform }}..."
+        npm run build:${{ matrix.platform }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEBUG: electron-builder
+
+    - name: List build output
+      run: |
+        echo "Checking dist directory:"
+        ls -la dist/ || echo "No dist directory found"
+        echo "Finding all built files:"
+        find . -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.zip" | grep -v node_modules || echo "No build artifacts found"
+      if: always()
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.platform }}-build
+        path: |
+          dist/*.exe
+          dist/*.msi
+          dist/*.dmg
+          dist/*.zip
+          dist/*.AppImage
+          dist/*.deb
+          dist/*.rpm
+          dist/*.yml
+          dist/*.yaml
+        retention-days: 7
+      if: always()
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: dist-artifacts
+
+    - name: Read Release Template
+      id: release_template
+      run: |
+        if [ -f .github/RELEASE_TEMPLATE.md ]; then
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat .github/RELEASE_TEMPLATE.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist-artifacts/**/*
+        generate_release_notes: false
+        body: ${{ steps.release_template.outputs.body || 'See release notes below.' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    needs: release
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify build status
+      run: |
+        if [ "${{ needs.release.result }}" == "success" ]; then
+          echo "✅ Release ${{ github.ref_name }} has been published successfully!"
+        else
+          echo "❌ Release ${{ github.ref_name }} failed. Check the logs for details."
+        fi

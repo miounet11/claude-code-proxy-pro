@@ -1,0 +1,70 @@
+{
+  "app": {
+    "title": "Claude Code Proxy Pro",
+    "version": "版本"
+  },
+  "sidebar": {
+    "profiles": "設定檔",
+    "addProfile": "新增設定",
+    "startClaude": "啟動 Claude Code",
+    "openTerminal": "開啟終端機",
+    "exportScript": "匯出腳本",
+    "restoreOfficial": "還原官方設定",
+    "environmentStatus": "環境狀態"
+  },
+  "main": {
+    "proxyStatus": "代理狀態",
+    "running": "執行中",
+    "stopped": "已停止",
+    "currentAPI": "目前 API",
+    "configSettings": "設定配置",
+    "profileName": "設定名稱",
+    "apiAddress": "API 位址",
+    "apiKey": "API 金鑰",
+    "bigModel": "大型模型",
+    "smallModel": "小型模型",
+    "saveConfig": "儲存設定",
+    "environment": "環境配置",
+    "checkEnvironment": "檢查環境",
+    "reinstallAll": "全部重裝",
+    "operations": "快速操作",
+    "startProxy": "啟動代理",
+    "stopProxy": "停止代理",
+    "copyEnvVars": "複製環境變數",
+    "envPreview": "環境變數預覽"
+  },
+  "messages": {
+    "proxyStarted": "代理已啟動",
+    "proxyStopped": "代理已停止",
+    "proxyError": "代理啟動失敗",
+    "configSaved": "設定已儲存",
+    "configError": "儲存設定失敗",
+    "envCopied": "環境變數已複製到剪貼簿",
+    "scriptExported": "腳本已匯出",
+    "restoreConfirm": "確定要還原官方設定嗎？這將刪除所有自訂設定。",
+    "restoreSuccess": "已還原官方設定",
+    "deleteProfileConfirm": "確定要刪除設定 {{name}} 嗎？",
+    "profileDeleted": "設定已刪除",
+    "maxProfilesReached": "最多只能建立 10 個設定檔"
+  },
+  "errors": {
+    "networkError": "網路錯誤",
+    "invalidConfig": "設定無效",
+    "portInUse": "連接埠已被佔用",
+    "apiKeyRequired": "請輸入 API 金鑰",
+    "profileNameRequired": "請輸入設定名稱"
+  },
+  "status": {
+    "installed": "已安裝",
+    "notInstalled": "未安裝",
+    "installing": "安裝中...",
+    "checking": "檢查中..."
+  },
+  "buttons": {
+    "install": "安裝",
+    "reinstall": "重裝",
+    "cancel": "取消",
+    "confirm": "確定",
+    "close": "關閉"
+  }
+}

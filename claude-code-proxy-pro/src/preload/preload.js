@@ -76,5 +76,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 监听代理状态
   onProxyStatus: (callback) => {
     ipcRenderer.on('proxy-status', (event, status) => callback(status));
+  },
+  
+  // 多语言支持
+  getLocale: () => ipcRenderer.invoke('get-locale'),
+  setLocale: (locale) => ipcRenderer.invoke('set-locale', locale),
+  getTranslations: () => ipcRenderer.invoke('get-translations'),
+  getSupportedLocales: () => ipcRenderer.invoke('get-supported-locales'),
+  onLocaleChanged: (callback) => {
+    ipcRenderer.on('locale-changed', (event, locale) => callback(locale));
   }
 });

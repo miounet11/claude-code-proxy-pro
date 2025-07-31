@@ -7,6 +7,7 @@
     <title>Claude Code Proxy Pro</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="loading-styles.css">
+    <script src="i18n-manager.js"></script>
 </head>
 <body>
     <div id="app">
@@ -16,17 +17,20 @@
                 <div class="app-logo">
                     <div class="logo-icon">C</div>
                     <div class="logo-text">
-                        <h1>Claude Code</h1>
+                        <h1 data-i18n="app.title">Claude Code</h1>
                         <span class="version" id="version">Pro v1.0.0</span>
                     </div>
+                </div>
+                <div class="language-selector-container" id="languageSelectorContainer">
+                    <!-- 语言选择器将通过JS动态生成 -->
                 </div>
             </div>
             
             <!-- 配置文件列表 -->
             <div class="sidebar-section">
                 <div class="section-header">
-                    <h3>配置文件</h3>
-                    <button class="add-profile-btn" id="addProfileBtn" title="添加配置">
+                    <h3 data-i18n="sidebar.profiles">配置文件</h3>
+                    <button class="add-profile-btn" id="addProfileBtn" data-i18n-title="sidebar.addProfile" title="添加配置">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -47,14 +51,14 @@
                         <path d="M12 12L2 7"></path>
                         <path d="M12 12l10-5"></path>
                     </svg>
-                    <span>启动 Claude Code</span>
+                    <span data-i18n="sidebar.startClaude">启动 Claude Code</span>
                 </button>
                 <button class="sidebar-btn" id="openTerminalBtn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="4 17 10 11 4 5"></polyline>
                         <line x1="12" y1="19" x2="20" y2="19"></line>
                     </svg>
-                    <span>打开终端</span>
+                    <span data-i18n="sidebar.openTerminal">打开终端</span>
                 </button>
                 <button class="sidebar-btn" id="exportScriptBtn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -64,7 +68,7 @@
                         <line x1="16" y1="17" x2="8" y2="17"></line>
                         <polyline points="10 9 9 9 8 9"></polyline>
                     </svg>
-                    <span>导出脚本</span>
+                    <span data-i18n="sidebar.exportScript">导出脚本</span>
                 </button>
                 <button class="sidebar-btn" id="restoreOfficialBtn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -73,7 +77,7 @@
                         <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
                         <path d="M3 21v-5h5"></path>
                     </svg>
-                    <span>还原官方设置</span>
+                    <span data-i18n="sidebar.restoreOfficial">还原官方设置</span>
                 </button>
             </div>
             
@@ -83,10 +87,10 @@
                 <div class="proxy-status" id="proxyStatus">
                     <div class="status-header">
                         <span class="status-dot" id="proxyStatusDot"></span>
-                        <span class="status-title">代理状态</span>
+                        <span class="status-title" data-i18n="main.proxyStatus">代理状态</span>
                     </div>
                     <div class="status-details" id="proxyDetails">
-                        <span class="status-url" id="currentApiUrl">未启动</span>
+                        <span class="status-url" id="currentApiUrl" data-i18n="main.stopped">未启动</span>
                     </div>
                 </div>
                 
@@ -120,24 +124,27 @@
         <main class="main-content">
             <!-- 顶部工具栏 -->
             <div class="toolbar">
-                <h2 id="currentProfileName">默认配置</h2>
+                <div class="toolbar-content">
+                    <h2 id="currentProfileName">默认配置</h2>
+                    <div class="language-selector-container"></div>
+                </div>
             </div>
             
             <!-- 配置表单 -->
             <div class="config-form" id="configForm">
                 <!-- 配置设置 -->
                 <section class="form-section">
-                    <h3 class="section-title">配置设置</h3>
+                    <h3 class="section-title" data-i18n="main.configSettings">配置设置</h3>
                     <div class="form-group">
-                        <label for="configName">配置名称</label>
-                        <input type="text" id="configName" class="form-input" placeholder="输入配置名称">
+                        <label for="configName" data-i18n="main.profileName">配置名称</label>
+                        <input type="text" id="configName" class="form-input" data-i18n-placeholder="main.profileName" placeholder="输入配置名称">
                     </div>
                     <div class="form-group">
-                        <label for="apiUrl">API 地址</label>
+                        <label for="apiUrl" data-i18n="main.apiAddress">API 地址</label>
                         <input type="text" id="apiUrl" class="form-input" placeholder="https://api.openai.com/v1">
                     </div>
                     <div class="form-group">
-                        <label for="apiKey">API 密钥</label>
+                        <label for="apiKey" data-i18n="main.apiKey">API 密钥</label>
                         <div class="input-with-action">
                             <input type="password" id="apiKey" class="form-input" placeholder="sk-...">
                             <button class="input-action" id="toggleApiKey">
@@ -154,10 +161,10 @@
                 
                 <!-- 模型设置 -->
                 <section class="form-section">
-                    <h3 class="section-title">模型设置</h3>
+                    <h3 class="section-title" data-i18n="main.modelSettings">模型设置</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="bigModel">大模型</label>
+                            <label for="bigModel" data-i18n="main.bigModel">大模型</label>
                             <div class="select-wrapper">
                                 <select id="bigModel" class="form-select">
                                     <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
@@ -171,7 +178,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="smallModel">小模型</label>
+                            <label for="smallModel" data-i18n="main.smallModel">小模型</label>
                             <div class="select-wrapper">
                                 <select id="smallModel" class="form-select">
                                     <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (免费)</option>
@@ -188,21 +195,21 @@
                 
                 <!-- 操作按钮 -->
                 <div class="form-actions">
-                    <button class="btn btn-danger" id="deleteProfileBtn">删除配置</button>
+                    <button class="btn btn-danger" id="deleteProfileBtn" data-i18n="buttons.delete">删除配置</button>
                     <button class="btn btn-secondary" id="testConfigBtn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                             <line x1="12" y1="9" x2="12" y2="13"></line>
                             <line x1="12" y1="17" x2="12.01" y2="17"></line>
                         </svg>
-                        测试配置
+                        <span data-i18n="buttons.test">测试配置</span>
                     </button>
-                    <button class="btn btn-primary" id="saveProfileBtn">保存配置</button>
+                    <button class="btn btn-primary" id="saveProfileBtn" data-i18n="main.saveConfig">保存配置</button>
                     <button class="btn btn-primary" id="startProxyBtn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="5 3 19 12 5 21 5 3"></polygon>
                         </svg>
-                        启动代理
+                        <span data-i18n="main.startProxy">启动代理</span>
                     </button>
                 </div>
             </div>
@@ -213,8 +220,8 @@
                     <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                     <polyline points="13 2 13 9 20 9"></polyline>
                 </svg>
-                <h3>还没有配置文件</h3>
-                <p>点击左侧 "+" 按钮创建你的第一个配置</p>
+                <h3 data-i18n="main.noProfiles">还没有配置文件</h3>
+                <p data-i18n="main.createFirstProfile">点击左侧 "+" 按钮创建你的第一个配置</p>
             </div>
         </main>
     </div>

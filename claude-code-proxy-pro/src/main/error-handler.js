@@ -139,6 +139,15 @@ class ErrorHandler {
    * 显示错误对话框
    */
   showErrorDialog(error) {
+    // 确保 app 已经 ready
+    if (!app.isReady()) {
+      // 如果 app 还没 ready，等待后再显示
+      app.whenReady().then(() => {
+        this.showErrorDialog(error);
+      });
+      return;
+    }
+
     const options = {
       type: 'error',
       title: '错误',
