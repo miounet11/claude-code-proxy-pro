@@ -2,6 +2,22 @@
 
 All notable changes to Claude Code Proxy Pro will be documented in this file.
 
+## [3.3.6] - 2025-08-01
+
+### Fixed
+- 🎨 Optimized layout to prevent scrolling - reduced spacing and padding throughout
+- 📐 Decreased toolbar height from 64px to 48px for better screen utilization
+- 🔲 Reduced button and input heights from 40px to 32px
+- 🐛 Fixed environment detection display error (claudeCode status ID mapping)
+- 🚪 Fixed modal close functionality - added proper event handlers
+- ⌨️ Added ESC key support to close modals
+
+### Improved
+- 📏 Adjusted spacing variables for more compact layout
+- 🔤 Reduced font sizes from 14px to 13px for better density
+- 📱 Better content fit without requiring scroll on standard screens
+- 🎯 Removed duplicate showInstallGuide function definition
+
 ## [3.3.5] - 2025-08-01
 
 ### Added

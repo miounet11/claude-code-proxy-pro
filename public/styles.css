@@ -48,9 +48,9 @@
     --toolbar-height: 64px;
     --spacing-xs: 4px;
     --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
     
     /* 动画 */
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -385,8 +385,8 @@ body {
 
 /* 工具栏 */
 .toolbar {
-    height: var(--toolbar-height);
-    padding: 0 var(--spacing-xl);
+    height: 48px;
+    padding: 0 var(--spacing-lg);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -444,17 +444,18 @@ body {
 .config-form {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-xl);
-    max-width: 1200px;
+    padding: var(--spacing-lg);
+    max-width: 100%;
     margin: 0 auto;
+    width: 100%;
 }
 
 .form-section {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
     position: relative;
     transition: all var(--transition-base);
 }
@@ -512,7 +513,7 @@ body {
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-xl);
+    gap: var(--spacing-md);
     align-items: start;
 }
 
@@ -576,13 +577,14 @@ body {
 
 /* 输入框样式 */
 .form-input {
-    padding: var(--spacing-md);
+    padding: 6px 12px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: 13px;
     transition: all var(--transition-fast);
+    height: 32px;
 }
 
 .form-input:focus {
@@ -684,10 +686,10 @@ body {
 
 /* 按钮样式 */
 .btn {
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 6px 16px;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     display: inline-flex;
@@ -697,7 +699,7 @@ body {
     transition: all var(--transition-base);
     position: relative;
     overflow: hidden;
-    min-height: 40px;
+    min-height: 32px;
     white-space: nowrap;
 }
 

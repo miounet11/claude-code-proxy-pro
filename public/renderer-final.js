@@ -1367,7 +1367,7 @@ echo "代理端口: $PROXY_PORT"
             'nodejs': 'nodejs-status',
             'git': 'git-status',
             'uv': 'uv-status',
-            'claudeCode': 'claude-code-status'  // 修正键名
+            'claudeCode': 'claude-code-status'  // 修正键名以匹配HTML中的ID
         };
         
         Object.entries(statusMap).forEach(([key, elementId]) => {
@@ -1447,40 +1447,6 @@ echo "代理端口: $PROXY_PORT"
         }
     }
     
-    // 显示安装指南
-    showInstallGuide(envKey, envInfo) {
-        const modal = document.createElement('div');
-        modal.className = 'install-guide-modal';
-        modal.innerHTML = `
-            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
-            <div class="modal-content">
-                <h3>安装 ${envInfo.name}</h3>
-                <div class="install-options">
-                    <div class="install-option">
-                        <h4>🤖 自动安装（推荐）</h4>
-                        <button class="btn btn-primary" onclick="window.proxyManager.installEnvironment('${envKey}')">
-                            一键安装
-                        </button>
-                    </div>
-                    <div class="install-option">
-                        <h4>💻 手动安装</h4>
-                        <code>${envInfo.installCmd || '请访问官网获取安装命令'}</code>
-                        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${envInfo.installCmd || ''}')">
-                            复制命令
-                        </button>
-                    </div>
-                    <div class="install-option">
-                        <h4>🌐 访问官网</h4>
-                        <button class="btn btn-secondary" onclick="window.electronAPI.openExternal('${this.getOfficialUrl(envKey)}')">
-                            打开官网
-                        </button>
-                    </div>
-                </div>
-                <button class="modal-close" onclick="this.parentElement.parentElement.remove()">×</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
     
     // 获取官方网站URL
     getOfficialUrl(envKey) {
@@ -1523,9 +1489,10 @@ echo "代理端口: $PROXY_PORT"
         const modal = document.createElement('div');
         modal.className = 'install-guide-modal';
         modal.innerHTML = `
+            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
             <div class="install-guide-content">
                 <h3>安装 ${envInfo.name}</h3>
-                <button class="close-btn" onclick="this.parentElement.parentElement.remove()">×</button>
+                <button class="close-btn" onclick="this.closest('.install-guide-modal').remove()">×</button>
                 
                 <div class="install-options">
                     <div class="install-option">
@@ -1550,12 +1517,31 @@ echo "代理端口: $PROXY_PORT"
         
         document.body.appendChild(modal);
         
-        // 点击背景关闭
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                modal.remove();
+        // 绑定关闭事件
+        const closeModal = () => {
+            modal.remove();
+            document.removeEventListener('keydown', handleEsc);
+        };
+        
+        // 点击overlay关闭
+        const overlay = modal.querySelector('.modal-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', closeModal);
+        }
+        
+        // 点击关闭按钮关闭
+        const closeBtn = modal.querySelector('.close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // ESC键关闭
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
             }
         };
+        document.addEventListener('keydown', handleEsc);
     }
     
     // 安装环境
