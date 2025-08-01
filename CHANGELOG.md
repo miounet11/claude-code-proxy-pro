@@ -2,6 +2,19 @@
 
 All notable changes to Claude Code Proxy Pro will be documented in this file.
 
+## [3.3.4] - 2025-08-01
+
+### Fixed
+- 🎨 Generated proper macOS application icon (.icns)
+- 🚀 Improved app startup performance
+- 🛡️ Fixed auto-updater 404 errors with better error handling
+- 🖼️ Added dark background to prevent white flash on startup
+
+### Improved
+- ⚡ Reduced dock icon bouncing time on macOS
+- 📦 Complete application packaging with all required resources
+- 🔧 Enhanced build configuration for better distribution
+
 ## [3.3.3] - 2025-07-31
 
 ### Added

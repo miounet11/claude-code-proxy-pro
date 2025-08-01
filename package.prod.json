@@ -1,0 +1,19 @@
+{
+  "name": "claude-code-proxy-pro",
+  "version": "3.3.3",
+  "description": "一个高效的Claude Code代理工具",
+  "main": "src/main/main.js",
+  "author": {
+    "name": "miounet11",
+    "email": "9248293@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "uuid": "^11.1.0"
+  }
+}
