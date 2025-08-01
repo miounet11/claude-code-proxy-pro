@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="loading-styles.css">
     <script src="i18n-manager.js"></script>
 </head>
-<body>
-    <div id="app">
+<body role="application">
+    <div id="app" role="main">
         <!-- 侧边栏 -->
-        <aside class="sidebar">
+        <aside class="sidebar" role="navigation" aria-label="应用程序导航">
             <div class="sidebar-header">
                 <div class="app-logo">
                     <div class="logo-icon">C</div>
@@ -30,14 +30,14 @@
             <div class="sidebar-section">
                 <div class="section-header">
                     <h3 data-i18n="sidebar.profiles">配置文件</h3>
-                    <button class="add-profile-btn" id="addProfileBtn" data-i18n-title="sidebar.addProfile" title="添加配置">
+                    <button class="add-profile-btn" id="addProfileBtn" data-i18n-title="sidebar.addProfile" title="添加配置 (Ctrl+N)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                     </button>
                 </div>
-                <ul class="profile-list" id="profileList">
+                <ul class="profile-list" id="profileList" role="listbox" aria-label="配置文件列表">
                     <!-- 配置项将通过JS动态生成 -->
                 </ul>
             </div>
@@ -121,7 +121,7 @@
         </aside>
         
         <!-- 主内容区 -->
-        <main class="main-content">
+        <main class="main-content" role="main" aria-label="主内容区域">
             <!-- 顶部工具栏 -->
             <div class="toolbar">
                 <div class="toolbar-content">
@@ -135,25 +135,30 @@
                 <!-- 配置设置 -->
                 <section class="form-section">
                     <h3 class="section-title" data-i18n="main.configSettings">配置设置</h3>
-                    <div class="form-group">
-                        <label for="configName" data-i18n="main.profileName">配置名称</label>
-                        <input type="text" id="configName" class="form-input" data-i18n-placeholder="main.profileName" placeholder="输入配置名称">
+                    <div class="form-grid">
+                        <div class="form-group required">
+                            <label for="configName" data-i18n="main.profileName">配置名称</label>
+                            <input type="text" id="configName" class="form-input" data-i18n-placeholder="main.profileName" placeholder="输入配置名称" aria-required="true" aria-describedby="configName-hint">
+                            <div class="field-hint" id="configName-hint">给你的配置起一个有意义的名称</div>
+                        </div>
+                        <div class="form-group required">
+                            <label for="apiUrl" data-i18n="main.apiAddress">API 地址</label>
+                            <input type="url" id="apiUrl" class="form-input" placeholder="https://api.openai.com/v1" aria-required="true" aria-describedby="apiUrl-hint">
+                            <div class="field-hint" id="apiUrl-hint">API 服务器的完整地址</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="apiUrl" data-i18n="main.apiAddress">API 地址</label>
-                        <input type="text" id="apiUrl" class="form-input" placeholder="https://api.openai.com/v1">
-                    </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label for="apiKey" data-i18n="main.apiKey">API 密钥</label>
                         <div class="input-with-action">
-                            <input type="password" id="apiKey" class="form-input" placeholder="sk-...">
-                            <button class="input-action" id="toggleApiKey">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <input type="password" id="apiKey" class="form-input" placeholder="sk-..." aria-required="true" aria-describedby="apiKey-hint" autocomplete="off">
+                            <button class="input-action" id="toggleApiKey" title="切换密钥显示" aria-label="切换密钥显示/隐藏">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
                             </button>
                         </div>
+                        <div class="field-hint" id="apiKey-hint">你的 API 密钥将被安全存储</div>
                     </div>
                     <!-- 隐藏的代理端口输入框 -->
                     <input type="hidden" id="proxyPort" value="8082">
@@ -162,11 +167,11 @@
                 <!-- 模型设置 -->
                 <section class="form-section">
                     <h3 class="section-title" data-i18n="main.modelSettings">模型设置</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
+                    <div class="form-grid two-columns">
+                        <div class="form-group required">
                             <label for="bigModel" data-i18n="main.bigModel">大模型</label>
                             <div class="select-wrapper">
-                                <select id="bigModel" class="form-select">
+                                <select id="bigModel" class="form-select" aria-required="true" aria-describedby="bigModel-hint">
                                     <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
                                     <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (免费)</option>
                                     <option value="grok-3">Grok 3</option>
@@ -174,21 +179,23 @@
                                     <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
                                     <option value="custom">自定义...</option>
                                 </select>
-                                <input type="text" id="customBigModel" class="form-input custom-model-input" placeholder="输入自定义模型名称" style="display: none;">
+                                <input type="text" id="customBigModel" class="form-input custom-model-input" placeholder="输入自定义模型名称" style="display: none;" aria-label="自定义大模型名称">
                             </div>
+                            <div class="field-hint" id="bigModel-hint">用于复杂任务和代码生成</div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group required">
                             <label for="smallModel" data-i18n="main.smallModel">小模型</label>
                             <div class="select-wrapper">
-                                <select id="smallModel" class="form-select">
+                                <select id="smallModel" class="form-select" aria-required="true" aria-describedby="smallModel-hint">
                                     <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (免费)</option>
                                     <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                                     <option value="gpt-4o-mini">GPT-4o Mini</option>
                                     <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                                     <option value="custom">自定义...</option>
                                 </select>
-                                <input type="text" id="customSmallModel" class="form-input custom-model-input" placeholder="输入自定义模型名称" style="display: none;">
+                                <input type="text" id="customSmallModel" class="form-input custom-model-input" placeholder="输入自定义模型名称" style="display: none;" aria-label="自定义小模型名称">
                             </div>
+                            <div class="field-hint" id="smallModel-hint">用于简单任务和快速响应</div>
                         </div>
                     </div>
                 </section>
@@ -196,20 +203,25 @@
                 <!-- 操作按钮 -->
                 <div class="form-actions">
                     <button class="btn btn-danger" id="deleteProfileBtn" data-i18n="buttons.delete">删除配置</button>
-                    <button class="btn btn-secondary" id="testConfigBtn">
+                    <button class="btn btn-secondary" id="testConfigBtn" title="测试配置 (Ctrl+T)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                             <line x1="12" y1="9" x2="12" y2="13"></line>
                             <line x1="12" y1="17" x2="12.01" y2="17"></line>
                         </svg>
                         <span data-i18n="buttons.test">测试配置</span>
+                        <kbd class="shortcut">Ctrl+T</kbd>
                     </button>
-                    <button class="btn btn-primary" id="saveProfileBtn" data-i18n="main.saveConfig">保存配置</button>
-                    <button class="btn btn-primary" id="startProxyBtn">
+                    <button class="btn btn-primary" id="saveProfileBtn" data-i18n="main.saveConfig" title="保存配置 (Ctrl+S)">
+                        保存配置
+                        <kbd class="shortcut">Ctrl+S</kbd>
+                    </button>
+                    <button class="btn btn-primary" id="startProxyBtn" title="启动/停止代理 (Ctrl+Enter)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="5 3 19 12 5 21 5 3"></polygon>
                         </svg>
                         <span data-i18n="main.startProxy">启动代理</span>
+                        <kbd class="shortcut">Ctrl+↵</kbd>
                     </button>
                 </div>
             </div>
@@ -227,11 +239,17 @@
     </div>
     
     <!-- Toast 提示 -->
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
     
     <!-- 加载遮罩 -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner"></div>
+    <div id="loadingOverlay" class="loading-overlay" role="dialog" aria-modal="true" aria-labelledby="loadingText">
+        <div class="loading-content">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <div class="loading-text" id="loadingText">正在加载...</div>
+            <div class="loading-progress" id="loadingProgress" style="display: none;" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="loading-progress-bar" id="loadingProgressBar" style="width: 0%" aria-hidden="true"></div>
+            </div>
+        </div>
     </div>
     
     <script src="error-handler.js"></script>

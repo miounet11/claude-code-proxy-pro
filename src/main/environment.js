@@ -180,7 +180,17 @@ async function checkEnvironment(key) {
   }
 
   const platform = process.platform;
-  const checkCmd = getOSSpecificCommand(`check${key}`, platform);
+  
+  // 修复命令键映射问题
+  const commandKeyMap = {
+    'nodejs': 'checknode',
+    'git': 'checkgit',
+    'uv': 'checkuv',
+    'claudeCode': 'checkclaude'
+  };
+  
+  const commandKey = commandKeyMap[key] || `check${key}`;
+  const checkCmd = getOSSpecificCommand(commandKey, platform);
 
   try {
     // 使用同步执行以获得更可靠的结果

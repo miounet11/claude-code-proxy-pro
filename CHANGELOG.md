@@ -2,6 +2,27 @@
 
 All notable changes to Claude Code Proxy Pro will be documented in this file.
 
+## [3.3.5] - 2025-08-01
+
+### Added
+- 🎹 Comprehensive keyboard shortcuts system (Ctrl+S save, Ctrl+T test, Ctrl+Enter start/stop)
+- 🎯 Smart error handling with context-specific solutions
+- 📊 Enhanced loading states with progress bars and operation-specific messages
+- ♿ Full accessibility support with ARIA attributes and screen reader optimization
+- 🔄 Form field real-time validation with visual feedback
+
+### Improved
+- ⚡ Visual feedback enhancements with animations and transitions
+- 🎨 Modern UI design with gradient buttons and card layouts
+- 📱 Better responsive design for mobile devices
+- 🚀 Performance optimizations with GPU-accelerated animations
+- 🛠️ Environment detection accuracy improvements
+
+### Fixed
+- 🐛 Environment detection command key mapping issue
+- 🎯 Focus management and keyboard navigation
+- 📝 Form validation and error display
+
 ## [3.3.4] - 2025-08-01
 
 ### Fixed
