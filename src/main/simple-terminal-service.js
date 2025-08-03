@@ -2,9 +2,11 @@ const { ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const os = require('os');
 const { logger } = require('./logger');
+const EventEmitter = require('events');
 
-class SimpleTerminalService {
+class SimpleTerminalService extends EventEmitter {
     constructor() {
+        super();
         this.terminals = new Map();
         this.setupIpcHandlers();
     }
@@ -37,6 +39,8 @@ class SimpleTerminalService {
                 // 监听标准输出
                 shellProcess.stdout.on('data', (data) => {
                     event.sender.send(`terminal:data:${terminalId}`, data);
+                    // 也发送通用事件供增强版使用
+                    this.emit('terminal-data', { terminalId, data });
                 });
                 
                 // 监听错误输出

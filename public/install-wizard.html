@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Proxy Pro - 安装向导</title>
+    <link rel="stylesheet" href="vscode-style.css">
+    <style>
+        .wizard-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: var(--vscode-editor-background);
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .wizard-header {
+            background: var(--vscode-titleBar-activeBackground);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--vscode-panel-border);
+        }
+
+        .wizard-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--vscode-foreground);
+        }
+
+        .wizard-header p {
+            margin: 10px 0 0;
+            color: var(--vscode-descriptionForeground);
+        }
+
+        .wizard-body {
+            padding: 30px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--vscode-panel-border);
+            z-index: 0;
+        }
+
+        .step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            background: var(--vscode-editor-background);
+            border: 2px solid var(--vscode-panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--vscode-button-background);
+            border-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+        }
+
+        .step.completed .step-circle {
+            background: var(--vscode-testing-iconPassed);
+            border-color: var(--vscode-testing-iconPassed);
+            color: white;
+        }
+
+        .step-content {
+            min-height: 300px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--vscode-input-background);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .check-item.checking {
+            background: var(--vscode-editor-selectionBackground);
+        }
+
+        .check-item.success {
+            background: rgba(46, 160, 67, 0.1);
+            border: 1px solid var(--vscode-testing-iconPassed);
+        }
+
+        .check-item.error {
+            background: rgba(245, 108, 108, 0.1);
+            border: 1px solid var(--vscode-testing-iconFailed);
+        }
+
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--vscode-progressBar-background);
+            border-top-color: var(--vscode-button-background);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--vscode-progressBar-background);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--vscode-button-background);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            text-align: center;
+            color: var(--vscode-descriptionForeground);
+        }
+
+        .wizard-footer {
+            padding: 20px 30px;
+            border-top: 1px solid var(--vscode-panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .api-key-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: var(--vscode-input-background);
+            border: 1px solid var(--vscode-input-border);
+            color: var(--vscode-input-foreground);
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .api-key-hint {
+            font-size: 12px;
+            color: var(--vscode-descriptionForeground);
+            margin: 5px 0;
+        }
+
+        .success-screen {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            color: var(--vscode-testing-iconPassed);
+            margin-bottom: 20px;
+        }
+
+        .success-actions {
+            margin-top: 30px;
+        }
+
+        .success-actions button {
+            margin: 0 10px;
+        }
+
+        .error-details {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--vscode-inputValidation-errorBackground);
+            border: 1px solid var(--vscode-inputValidation-errorBorder);
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--vscode-errorForeground);
+        }
+
+        .manual-fix-hint {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--vscode-inputValidation-warningBackground);
+            border: 1px solid var(--vscode-inputValidation-warningBorder);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>🚀 Claude Code Proxy Pro 安装向导</h1>
+            <p>让我们帮您快速设置和配置所有必要的组件</p>
+        </div>
+
+        <div class="wizard-body">
+            <!-- 步骤指示器 -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">环境检查</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">依赖安装</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">配置设置</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">完成</div>
+                </div>
+            </div>
+
+            <!-- 步骤内容 -->
+            <div class="step-content" id="step-content">
+                <!-- 步骤 1: 环境检查 -->
+                <div class="step-panel" id="step1">
+                    <h2>系统环境检查</h2>
+                    <p>正在检查您的系统环境，确保所有必要的组件都已准备就绪...</p>
+                    
+                    <div class="check-list">
+                        <div class="check-item" id="check-os">
+                            <div class="check-icon">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="check-info">
+                                <div class="check-title">操作系统</div>
+                                <div class="check-status">检查中...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="check-item" id="check-nodejs">
+                            <div class="check-icon">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="check-info">
+                                <div class="check-title">Node.js</div>
+                                <div class="check-status">检查中...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="check-item" id="check-git">
+                            <div class="check-icon">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="check-info">
+                                <div class="check-title">Git</div>
+                                <div class="check-status">检查中...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="check-item" id="check-network">
+                            <div class="check-icon">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="check-info">
+                                <div class="check-title">网络连接</div>
+                                <div class="check-status">检查中...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="check-item" id="check-port">
+                            <div class="check-icon">
+                                <div class="spinner"></div>
+                            </div>
+                            <div class="check-info">
+                                <div class="check-title">端口 8082</div>
+                                <div class="check-status">检查中...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤 2: 依赖安装 -->
+                <div class="step-panel" id="step2" style="display: none;">
+                    <h2>安装必要的依赖</h2>
+                    <p>根据环境检查结果，我们将为您安装以下组件：</p>
+                    
+                    <div class="install-list" id="install-list">
+                        <!-- 动态生成安装项 -->
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="install-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text" id="install-status">准备开始安装...</div>
+                    </div>
+                </div>
+
+                <!-- 步骤 3: 配置设置 -->
+                <div class="step-panel" id="step3" style="display: none;">
+                    <h2>配置 Claude API</h2>
+                    <p>请输入您的 Anthropic API Key 以启用 Claude 功能：</p>
+                    
+                    <div class="form-group">
+                        <label for="api-key">API Key</label>
+                        <input 
+                            type="password" 
+                            id="api-key" 
+                            class="api-key-input" 
+                            placeholder="sk-ant-..." 
+                            autocomplete="off"
+                        >
+                        <div class="api-key-hint">
+                            您可以在 <a href="https://console.anthropic.com/account/keys" target="_blank">Anthropic Console</a> 获取 API Key
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="save-key"> 
+                            保存 API Key 到本地（加密存储）
+                        </label>
+                    </div>
+                    
+                    <div class="advanced-settings">
+                        <details>
+                            <summary>高级设置</summary>
+                            <div class="form-group">
+                                <label for="proxy-port">代理端口</label>
+                                <input type="number" id="proxy-port" value="8082" min="1024" max="65535">
+                            </div>
+                            <div class="form-group">
+                                <label for="base-url">API Base URL</label>
+                                <input type="text" id="base-url" value="https://api.anthropic.com">
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- 步骤 4: 完成 -->
+                <div class="step-panel" id="step4" style="display: none;">
+                    <div class="success-screen">
+                        <div class="success-icon">✅</div>
+                        <h2>安装完成！</h2>
+                        <p>Claude Code Proxy Pro 已成功安装和配置。</p>
+                        
+                        <div class="success-info">
+                            <p><strong>代理地址：</strong> http://localhost:8082</p>
+                            <p><strong>环境变量已设置：</strong></p>
+                            <pre>ANTHROPIC_BASE_URL=http://localhost:8082/v1
+ANTHROPIC_API_KEY=proxy-key</pre>
+                        </div>
+                        
+                        <div class="success-actions">
+                            <button class="vscode-button primary" onclick="startProxy()">
+                                启动代理服务
+                            </button>
+                            <button class="vscode-button" onclick="openMainApp()">
+                                打开主应用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-footer">
+            <button class="vscode-button" id="btn-back" onclick="previousStep()" disabled>
+                上一步
+            </button>
+            <div class="footer-info">
+                <span id="footer-status">正在检查环境...</span>
+            </div>
+            <button class="vscode-button primary" id="btn-next" onclick="nextStep()" disabled>
+                下一步
+            </button>
+        </div>
+    </div>
+
+    <script src="install-wizard.js"></script>
+</body>
+</html>

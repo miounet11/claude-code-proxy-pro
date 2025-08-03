@@ -1,8 +1,8 @@
 {
   "name": "claude-code-proxy-pro",
-  "version": "4.0.1",
+  "version": "4.1.1",
   "description": "一个高效的Claude Code代理工具",
-  "main": "src/main/main.js",
+  "main": "src/main/main-enhanced.js",
   "scripts": {
     "start": "electron .",
     "start:integrated": "electron . --integrated",
@@ -13,6 +13,8 @@
     "dev:all": "electron . --dev --all-in-one",
     "dev:vscode": "electron src/main/main-vscode-style.js --dev",
     "start:vscode": "electron src/main/main-vscode-style.js",
+    "dev:enhanced": "electron src/main/main-enhanced.js --dev",
+    "start:enhanced": "electron src/main/main-enhanced.js",
     "build": "npm run build:clean && electron-builder",
     "build:clean": "rimraf dist",
     "build:win": "npm run build:clean && node scripts/build.js win",

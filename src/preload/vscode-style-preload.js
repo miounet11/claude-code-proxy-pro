@@ -76,7 +76,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
     toggleDevTools: () => ipcRenderer.send('toggle-dev-tools'),
     
     // 日志
-    log: (level, message, ...args) => ipcRenderer.send('log', { level, message, args })
+    log: (level, message, ...args) => ipcRenderer.send('log', { level, message, args }),
+    
+    // 快速启动功能
+    quickStart: () => ipcRenderer.invoke('quick-start'),
+    
+    onQuickStart: (callback) => {
+        const listener = () => callback();
+        ipcRenderer.on('quick-start', listener);
+        return () => ipcRenderer.removeListener('quick-start', listener);
+    },
+    
+    onInstallProgress: (callback) => {
+        const listener = (event, data) => callback(data);
+        ipcRenderer.on('install-progress', listener);
+        return () => ipcRenderer.removeListener('install-progress', listener);
+    }
 });
 
 // 监听主进程的初始化完成事件

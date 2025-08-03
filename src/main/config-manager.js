@@ -16,6 +16,40 @@ class ConfigManager {
   }
 
   /**
+   * 获取所有配置文件
+   */
+  getProfiles() {
+    return this.store.get('profiles', []);
+  }
+
+  /**
+   * 保存配置文件
+   */
+  saveProfile(profile) {
+    const profiles = this.getProfiles();
+    const index = profiles.findIndex(p => p.id === profile.id);
+    
+    if (index >= 0) {
+      profiles[index] = profile;
+    } else {
+      profiles.push(profile);
+    }
+    
+    this.store.set('profiles', profiles);
+    return profile;
+  }
+
+  /**
+   * 删除配置文件
+   */
+  deleteProfile(id) {
+    const profiles = this.getProfiles();
+    const filtered = profiles.filter(p => p.id !== id);
+    this.store.set('profiles', filtered);
+    return true;
+  }
+
+  /**
    * 获取默认配置
    */
   getDefaultConfig() {

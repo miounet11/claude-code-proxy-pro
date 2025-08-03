@@ -37,6 +37,11 @@ class ClaudeCodeApp {
         
         // 显示欢迎消息
         this.showToast('Claude Code Proxy Pro 已就绪', 'success');
+        
+        // 监听快速启动事件
+        window.electronAPI.onQuickStart(() => {
+            this.handleQuickStart();
+        });
     }
 
     setupEventListeners() {
@@ -750,6 +755,33 @@ class ClaudeCodeApp {
     hideLoading() {
         const overlay = document.getElementById('loading-overlay');
         overlay.classList.remove('show');
+    }
+    
+    async handleQuickStart() {
+        this.showLoading('正在执行快速启动...');
+        
+        try {
+            // 监听安装进度
+            window.electronAPI.onInstallProgress((data) => {
+                this.showLoading(data.message || '安装中...');
+            });
+            
+            // 执行快速启动
+            const result = await window.electronAPI.quickStart();
+            
+            if (result.success) {
+                this.showToast('快速启动完成！所有服务已就绪', 'success');
+                // 更新状态
+                await this.checkEnvironment();
+                await this.updateProxyStatus();
+            } else {
+                this.showToast(`快速启动失败: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            this.showToast(`快速启动失败: ${error.message}`, 'error');
+        } finally {
+            this.hideLoading();
+        }
     }
 }
 
