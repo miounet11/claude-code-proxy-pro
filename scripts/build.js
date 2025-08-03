@@ -44,8 +44,7 @@ switch (platform) {
     process.exit(1);
 }
 
-// Add configuration
-buildCmd += ' --config electron-builder.yml';
+// Add configuration - use package.json build config
 buildCmd += ' --publish never'; // Don't publish automatically
 
 console.log(`\nRunning: ${buildCmd}\n`);

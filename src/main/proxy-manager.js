@@ -90,17 +90,17 @@ class CircuitBreaker extends EventEmitter {
 }
 
 class ProxyManager extends EventEmitter {
-  constructor() {
+  constructor(options = {}) {
     super();
     this.app = null;
     this.server = null;
-    this.port = 8082;
+    this.port = options.port || 8082;
     this.isRunning = false;
-    this.apiKey = process.env.ANTHROPIC_API_KEY || '';
-    this.bigModel = process.env.BIG_MODEL || 'claude-3-opus-20240229';
-    this.smallModel = process.env.SMALL_MODEL || 'claude-3-haiku-20241022';
+    this.apiKey = options.apiKey || process.env.ANTHROPIC_API_KEY || '';
+    this.bigModel = options.bigModel || process.env.BIG_MODEL || 'claude-3-opus-20240229';
+    this.smallModel = options.smallModel || process.env.SMALL_MODEL || 'claude-3-haiku-20241022';
     
-    // Enhanced configuration
+    // Enhanced configuration with deep merge for options
     this.config = {
       timeouts: {
         request: 120000,     // 2 minutes
@@ -124,6 +124,9 @@ class ProxyManager extends EventEmitter {
         timeout: 5000
       }
     };
+    
+    // Deep merge configuration with passed options
+    this.config = this.deepMerge(this.config, options.config || {});
     
     // Active connections and requests tracking
     this.activeConnections = new Set();
@@ -161,9 +164,26 @@ class ProxyManager extends EventEmitter {
     // Graceful shutdown flag
     this.shuttingDown = false;
     
-    // Health monitoring
+    // Health monitoring - only start if explicitly requested
     this.healthInterval = null;
-    this.startHealthMonitoring();
+    if (options.autoStartHealthMonitoring) {
+      this.startHealthMonitoring();
+    }
+  }
+
+  // Deep merge utility for nested configuration
+  deepMerge(target, source) {
+    for (const key in source) {
+      if (source.hasOwnProperty(key)) {
+        if (source[key] instanceof Object) {
+          if (!target[key]) Object.assign(target, { [key]: {} });
+          this.deepMerge(target[key], source[key]);
+        } else {
+          Object.assign(target, { [key]: source[key] });
+        }
+      }
+    }
+    return target;
   }
 
   // Health monitoring
@@ -1601,6 +1621,51 @@ class ProxyManager extends EventEmitter {
   }
   
   // Enhanced Anthropic to OpenAI format conversion with error handling
+  // 请求体安全处理方法
+  sanitizeRequestBody(body) {
+    if (typeof body !== 'string') {
+      body = JSON.stringify(body);
+    }
+    
+    // 移除潜在的有害内容
+    const sanitizedBody = body
+      .replace(/[<>&"\'\u0000-\u001F\u007F-\u009F]/g, '')
+      .replace(/script:/gi, '')
+      .replace(/javascript:/gi, '');
+    
+    return sanitizedBody;
+  }
+
+  // 系统指纹安全检查
+  sanitizeSystemFingerprint(fingerprint) {
+    if (typeof fingerprint !== 'string') {
+      return '';
+    }
+    
+    // 严格过滤，只允许字母、数字、连字符和下划线
+    return fingerprint.replace(/[^a-zA-Z0-9_-]/g, '');
+  }
+
+  // OpenAI 响应验证
+  validateOpenAIResponse(response) {
+    // 检查关键字段
+    if (!response.id || !response.choices || !Array.isArray(response.choices)) {
+      throw new Error('Invalid response structure');
+    }
+
+    // 检查消息内容
+    response.choices.forEach((choice, index) => {
+      if (!choice.message || typeof choice.message.content !== 'string') {
+        throw new Error(`Invalid message content at choice ${index}`);
+      }
+
+      // 安全内容过滤
+      choice.message.content = choice.message.content
+        .replace(/[<>&"\'\u0000-\u001F\u007F-\u009F]/g, '')
+        .slice(0, 32000); // 限制最大长度
+    });
+  }
+
   convertAnthropicToOpenAI(anthropicResponse, requestId = null) {
     try {
       // Input validation
@@ -1672,8 +1737,11 @@ class ProxyManager extends EventEmitter {
       
       // Add system fingerprint if available
       if (anthropicResponse.system_fingerprint) {
-        openaiResponse.system_fingerprint = anthropicResponse.system_fingerprint;
+        openaiResponse.system_fingerprint = this.sanitizeSystemFingerprint(anthropicResponse.system_fingerprint);
       }
+
+      // 对响应进行额外的安全验证
+      this.validateOpenAIResponse(openaiResponse);
       
       logger.debug('ProxyManager', 'Successfully converted Anthropic to OpenAI response', {
         requestId,

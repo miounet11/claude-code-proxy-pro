@@ -59,6 +59,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openTerminal: () => ipcRenderer.invoke('open-terminal'),
   openTerminalWithCommand: (command) => ipcRenderer.invoke('open-terminal-with-command', command),
   
+  // 集成终端 API
+  terminal: {
+    create: (options) => ipcRenderer.invoke('terminal:create', options),
+    write: (terminalId, data) => ipcRenderer.invoke('terminal:write', terminalId, data),
+    resize: (terminalId, cols, rows) => ipcRenderer.invoke('terminal:resize', terminalId, cols, rows),
+    destroy: (terminalId) => ipcRenderer.invoke('terminal:destroy', terminalId),
+    info: (terminalId) => ipcRenderer.invoke('terminal:info', terminalId),
+    list: () => ipcRenderer.invoke('terminal:list'),
+    onData: (terminalId, callback) => {
+      const channel = `terminal:data:${terminalId}`;
+      ipcRenderer.on(channel, (event, data) => callback(data));
+      return () => ipcRenderer.removeAllListeners(channel);
+    },
+    onExit: (terminalId, callback) => {
+      const channel = `terminal:exit:${terminalId}`;
+      ipcRenderer.on(channel, (event, exitInfo) => callback(exitInfo));
+      return () => ipcRenderer.removeAllListeners(channel);
+    }
+  },
+  
   // 保存文件
   saveFile: (options) => ipcRenderer.invoke('save-file', options),
   
@@ -85,5 +105,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getSupportedLocales: () => ipcRenderer.invoke('get-supported-locales'),
   onLocaleChanged: (callback) => {
     ipcRenderer.on('locale-changed', (event, locale) => callback(locale));
+  },
+  
+  // Claude API
+  claude: {
+    sendMessage: (options) => ipcRenderer.invoke('claude:send-message', options),
+    streamMessage: (options) => ipcRenderer.invoke('claude:stream-message', options),
+    validateKey: (options) => ipcRenderer.invoke('claude:validate-key', options),
+    getModels: () => ipcRenderer.invoke('claude:get-models'),
+    onStreamData: (callback) => {
+      ipcRenderer.on('claude:stream-data', (event, data) => callback(data));
+    },
+    onStreamEnd: (callback) => {
+      ipcRenderer.on('claude:stream-end', () => callback());
+    },
+    onStreamError: (callback) => {
+      ipcRenderer.on('claude:stream-error', (event, error) => callback(error));
+    }
   }
 });

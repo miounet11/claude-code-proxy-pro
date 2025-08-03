@@ -1,0 +1,99 @@
+:root {
+    --vscode-dark-background: #252526;
+    --vscode-dark-text: #cccccc;
+    --vscode-tab-active-background: #1e1e1e;
+    --vscode-tab-inactive-background: #2d2d2d;
+    --vscode-border-color: #3c3c3c;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--vscode-dark-background);
+    color: var(--vscode-dark-text);
+}
+
+#terminal-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--vscode-tab-inactive-background);
+    border-bottom: 1px solid var(--vscode-border-color);
+    padding: 5px;
+}
+
+.terminal-tabs {
+    display: flex;
+    align-items: center;
+}
+
+.terminal-tab {
+    display: flex;
+    align-items: center;
+    background-color: var(--vscode-tab-inactive-background);
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    border: 1px solid var(--vscode-border-color);
+}
+
+.terminal-tab.active {
+    background-color: var(--vscode-tab-active-background);
+}
+
+.terminal-tab .close-tab {
+    background: none;
+    border: none;
+    color: var(--vscode-dark-text);
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.add-terminal-tab {
+    background: none;
+    border: 1px solid var(--vscode-border-color);
+    color: var(--vscode-dark-text);
+    padding: 5px;
+    cursor: pointer;
+}
+
+.terminal-actions button {
+    background-color: var(--vscode-tab-inactive-background);
+    color: var(--vscode-dark-text);
+    border: 1px solid var(--vscode-border-color);
+    margin-left: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.terminal-content {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.terminal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: 100%;
+}
+
+.terminal-wrapper {
+    display: none;
+}
+
+.terminal-wrapper.active {
+    display: block;
+}
+
+.xterm {
+    height: 100%;
+    width: 100%;
+}

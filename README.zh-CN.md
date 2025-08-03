@@ -2,144 +2,157 @@
 
 简体中文 | [English](README.md) | [日本語](README.ja.md) | [繁體中文](README.zh-TW.md)
 
-Claude Code Proxy Pro 是一个高效的 Claude Code 代理工具，帮助开发者轻松配置和管理 Claude API 代理，支持多种模型和配置文件。
+Claude Code Proxy Pro 是一个专业的 VSCode 风格 GUI 应用，集成了 Claude API 代理、对话界面和终端功能，提供完整的一站式开发体验。
 
-## 功能特性
+## ✨ 核心特性
 
-- 🚀 **一键启动**：简洁界面，快速启动代理服务
-- 🔧 **多配置管理**：支持最多 10 个配置文件，轻松切换
-- 🌐 **多语言支持**：支持简体中文、英文、日文、繁体中文
-- 🎨 **现代化界面**：精美的深色主题界面，流畅的交互体验
-- 🔒 **安全可靠**：加密存储敏感信息，完善的错误处理
-- 🖥️ **跨平台支持**：支持 Windows、macOS 和 Linux
-- 🔄 **自动更新**：内置自动更新机制
-- 📊 **环境检测**：自动检测并安装所需组件
+- 🎨 **VSCode 风格界面** - 专业的开发者 UI，熟悉的操作体验
+- 🖥️ **集成终端** - 内置多标签终端，支持 Claude CLI 直接运行
+- 💬 **对话界面** - 类似 ChatGPT 的现代化聊天界面
+- 🚀 **一键启动** - 自动配置环境，无需命令行操作
+- 🔄 **智能路由** - 根据请求复杂度自动选择模型
+- 🛡️ **完全本地** - 所有功能集成在应用内，数据安全
 
-## 系统要求
+## 📸 界面预览
+
+应用采用专业的 VSCode 风格设计，包含：
+- 活动栏：快速访问核心功能
+- 侧边栏：管理配置和项目
+- 编辑器区域：Claude 对话界面
+- 集成终端：多标签终端支持
+
+## 🚀 快速开始
+
+### 系统要求
 
 - Node.js 16.0 或更高版本
 - Git
 - 操作系统：Windows 10+、macOS 10.15+ 或 Linux
 
-## 安装
-
-### 下载预构建版本
-
-访问 [Releases](https://github.com/miounet11/claude-code-proxy-pro/releases) 页面下载适合您平台的安装包：
-
-- Windows：`.exe` 安装程序
-- macOS：`.dmg` 安装程序
-- Linux：`.AppImage` 或 `.deb` 安装包
-
-### 从源码构建
+### 安装运行
 
 ```bash
-# 克隆仓库
+# 克隆项目
 git clone https://github.com/miounet11/claude-code-proxy-pro.git
 cd claude-code-proxy-pro
 
 # 安装依赖
 npm install
 
-# 启动开发版本
-npm start
+# 启动 VSCode 风格 GUI
+npm run dev:vscode
 
-# 构建安装包
-npm run build
+# 或使用 Electron 直接启动
+electron src/main/main-vscode-style.js
 ```
 
-## 使用方法
+## 📖 使用指南
 
-1. **首次启动**
-   - 应用会自动检查环境
-   - 如需要会安装缺失的组件
+### 首次使用
 
-2. **配置代理**
-   - 点击"添加配置"创建新的配置
-   - 输入 API 地址、API 密钥并选择模型
-   - 保存配置
+1. **启动应用** - 运行 `npm run dev:vscode`
+2. **环境检查** - 应用会自动检查并安装必要组件
+3. **配置 API** - 在设置页面输入您的 Claude API 密钥
+4. **一键启动** - 点击「一键启动」自动配置所有服务
 
-3. **启动代理**
-   - 选择一个配置文件
-   - 点击"启动代理"按钮
-   - 代理将在默认端口 8082 运行
+### 核心功能
 
-4. **启动 Claude Code**
-   - 代理运行后，点击"启动 Claude Code"
-   - 使用环境变量连接到代理
+#### 集成终端
+- 支持多标签终端
+- 自动配置 Claude CLI 环境
+- 无需外部终端窗口
+- 支持常用终端操作
 
-## 配置
+#### Claude 对话
+- Markdown 渲染和代码高亮
+- 文件上传和预览
+- 对话历史管理
+- 多模型选择
 
-### 环境变量
+#### 代理管理
+- 自动启动和配置代理
+- 实时状态监控
+- 多配置文件支持
+- 智能模型路由
 
-应用会自动设置以下环境变量：
+## 🎯 界面功能
 
+### 活动栏
+- 💬 **聊天** - Claude 对话界面
+- 🖥️ **终端** - 集成终端
+- ⚙️ **设置** - 应用配置
+- 📁 **项目** - 项目管理
+
+### 状态栏
+- 实时显示代理状态
+- 环境状态监控
+- 快速操作按钮
+
+### 快捷键
+- `Ctrl/Cmd + J` - 切换终端
+- `Ctrl/Cmd + N` - 新建对话
+- `Ctrl/Cmd + ,` - 打开设置
+- `Ctrl/Cmd + B` - 切换侧边栏
+
+## 🔧 高级配置
+
+### 环境变量（自动配置）
 ```bash
-export ANTHROPIC_BASE_URL=http://localhost:8082/v1
-export ANTHROPIC_API_KEY=your-api-key
+ANTHROPIC_BASE_URL=http://localhost:8082/v1
+ANTHROPIC_API_KEY=proxy-key
 ```
 
 ### 配置文件位置
-
-配置文件存储在：
 - Windows：`%APPDATA%/claude-code-proxy-pro`
 - macOS：`~/Library/Application Support/claude-code-proxy-pro`
 - Linux：`~/.config/claude-code-proxy-pro`
 
-## 开发
+## 🛠️ 开发
 
 ### 项目结构
-
 ```
 claude-code-proxy-pro/
 ├── src/
-│   ├── main/          # 主进程模块
-│   ├── renderer/      # 渲染进程
-│   └── preload/       # 预加载脚本
-├── public/            # 静态资源
-├── locales/           # 语言文件
-├── test/              # 测试文件
-└── scripts/           # 构建脚本
+│   ├── main/              # 主进程代码
+│   │   ├── main-vscode-style.js   # VSCode 风格主进程
+│   │   ├── terminal-service.js    # 终端服务
+│   │   └── claude-api-manager.js  # Claude API 管理
+│   └── preload/           # 预加载脚本
+├── public/                # 前端资源
+│   ├── index-vscode-style.html    # 主界面
+│   ├── vscode-style.css           # VSCode 风格样式
+│   └── vscode-style-app.js        # 应用逻辑
+└── locales/               # 国际化文件
 ```
 
 ### 开发命令
-
 ```bash
-# 启动开发模式
-npm run dev
+# 开发模式
+npm run dev:vscode
+
+# 构建生产版本
+npm run build
 
 # 运行测试
 npm test
-
-# 构建所有平台
-npm run build:all
-
-# 生成图标
-npm run icons
 ```
 
-## 贡献
+## 🤝 贡献
 
-欢迎贡献！请随时提交 Pull Request。
+欢迎贡献！请查看 [贡献指南](CONTRIBUTING.md) 了解详情。
 
-1. Fork 仓库
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
-## 许可证
+## 📄 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-## 致谢
+## 🙏 致谢
 
 - 基于 [Electron](https://www.electronjs.org/) 构建
-- UI 设计灵感来自现代开发者工具
-- 感谢所有贡献者和用户
+- 终端功能使用 [xterm.js](https://xtermjs.org/)
+- UI 设计灵感来自 [Visual Studio Code](https://code.visualstudio.com/)
 
-## 支持
+## 📞 支持
 
 如果您遇到问题或有建议：
 - 在 [GitHub Issues](https://github.com/miounet11/claude-code-proxy-pro/issues) 提交问题
-- 联系邮箱：support@claude-code-proxy.com
+- 查看 [常见问题](FAQ.md)

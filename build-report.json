@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-08-03T15:25:14.783Z",
+  "packageSize": 916087569,
+  "sourceSize": 214061,
+  "dependencies": 10,
+  "devDependencies": 3,
+  "optimizations": {
+    "asar": true,
+    "compression": "maximum",
+    "filesExcluded": 12
+  }
+}

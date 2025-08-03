@@ -11,9 +11,26 @@ const { logger } = require('./logger');
 const { errorHandler, ErrorType } = require('./error-handler');
 const UpdateManager = require('./updater');
 const i18n = require('./i18n');
+const SimpleTerminalService = require('./simple-terminal-service');
+const SystemEnvManager = require('./system-env-manager');
+const ClaudeAPIManager = require('./claude-api-manager');
 
 // 禁用 GPU 加速以避免崩溃
 app.disableHardwareAcceleration();
+
+// 添加 macOS 特定错误捕获
+process.on('uncaughtException', (error) => {
+  logger.error('Main', 'Uncaught macOS-specific exception', {
+    message: error.message,
+    name: error.name,
+    stack: error.stack
+  });
+  
+  // 如果是 TSM 或输入法相关错误，记录详细信息
+  if (error.message.includes('TSM') || error.message.includes('IMKCFRunLoopWakeUp')) {
+    dialog.showErrorBox('macOS系统错误', `检测到系统级别输入事件错误：${error.message}\n\n这可能是系统级别问题，不太影响应用功能。`);
+  }
+});
 
 // 设置 Chromium 标志以提高稳定性
 app.commandLine.appendSwitch('disable-gpu-sandbox');
@@ -25,6 +42,9 @@ let configManager = null;
 let profileManager = null;
 let proxyManager = null;
 let updateManager = null;
+let terminalService = null;
+let systemEnvManager = null;
+let claudeAPIManager = null;
 
 // 初始化函数
 function initializeManagers() {
@@ -39,6 +59,15 @@ function initializeManagers() {
   
   // 初始化更新管理器
   updateManager = new UpdateManager();
+  
+  // 初始化终端服务
+  terminalService = new SimpleTerminalService();
+  
+  // 初始化系统环境管理器
+  systemEnvManager = new SystemEnvManager();
+  
+  // 初始化 Claude API 管理器
+  claudeAPIManager = new ClaudeAPIManager();
   
   // 记录应用启动
   logger.info('Main', 'Application starting', {
@@ -70,9 +99,32 @@ function createWindow() {
   });
 
   // 加载应用界面
+  let htmlFile = 'index.html';
+  
+  // 首先检查环境变量
+  if (process.env.CLAUDE_CODE_HTML_FILE) {
+    htmlFile = process.env.CLAUDE_CODE_HTML_FILE;
+  } else if (process.argv.includes('--integrated')) {
+    htmlFile = 'index-integrated.html';
+  } else if (process.argv.includes('--debug')) {
+    htmlFile = 'debug-integrated.html';
+  } else if (process.argv.includes('--fixed')) {
+    htmlFile = 'index-integrated-fixed.html';
+  } else if (process.argv.includes('--all-in-one')) {
+    htmlFile = 'index-all-in-one.html';
+  }
+  
+  // 处理环境变量中的相对路径
+  let finalHtmlFile = htmlFile;
+  if (process.env.CLAUDE_CODE_HTML_FILE && !path.isAbsolute(htmlFile)) {
+    finalHtmlFile = path.join('../../', htmlFile);
+  } else {
+    finalHtmlFile = path.join('../../public/', htmlFile);
+  }
+  
   const startUrl = process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3000' 
-    : `file://${path.join(__dirname, '../../public/index.html')}`;
+    : `file://${path.join(__dirname, finalHtmlFile)}`;
   
   mainWindow.loadURL(startUrl);
 
@@ -133,6 +185,9 @@ app.on('before-quit', () => {
   if (proxyManager) {
     proxyManager.stop();
   }
+  if (terminalService) {
+    terminalService.cleanup();
+  }
   logger.info('Main', 'Cleanup completed');
 });
 
@@ -170,6 +225,15 @@ ipcMain.handle('start-proxy', errorHandler.wrapIpcHandler(async (_, config) => {
   
   if (result.success) {
     logger.info('Main', 'Proxy server started successfully');
+    
+    // 自动设置系统环境变量
+    const envResult = await systemEnvManager.setProxyEnvironment(proxyConfig.port);
+    if (envResult.success) {
+      logger.info('Main', 'System environment variables set successfully');
+    } else {
+      logger.error('Main', 'Failed to set system environment variables', { error: envResult.error });
+    }
+    
     // 通知渲染进程
     if (mainWindow) {
       mainWindow.webContents.send('proxy-status', true);

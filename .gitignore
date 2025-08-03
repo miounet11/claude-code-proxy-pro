@@ -54,3 +54,24 @@ electron-builder.yml
 # Package lock files (optional - uncomment if you want to ignore)
 # package-lock.json
 # yarn.lock
+
+# Old files to ignore (已清理的旧文件)
+*.sh
+terminal-*.md
+vscode-terminal-*.md
+VSCODE-TERMINAL-README.md
+ALL-IN-ONE-README.md
+TEST-GUIDE.md
+index-integrated*.html
+index-complete.html
+index-all-in-one.html
+claude-chat.html
+terminal-demo.html
+vscode-terminal.html
+renderer-final*.js
+renderer-integrated*.js
+renderer-terminal*.js
+complete-*.css
+claude-chat.css
+xterm-import.css
+loading-styles.css

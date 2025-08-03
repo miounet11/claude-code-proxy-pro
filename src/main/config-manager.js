@@ -31,6 +31,7 @@ class ConfigManager {
         port: 3080,
         autoStart: false,
         enableLogging: true,
+        macosSpecificLogging: true,  // 新增macOS特定日志记录
         maxRetries: 3,
         retryDelay: 1000
       },

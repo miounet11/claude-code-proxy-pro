@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' ws://localhost:* wss://localhost:*;">
+    <title>Claude Code Proxy Pro - VSCode Style</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="vscode-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.css">
+    
+    <!-- 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 顶部菜单栏 -->
+        <header class="menubar">
+            <div class="menubar-left">
+                <button class="menu-button" title="菜单">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="app-title">Claude Code Proxy Pro</span>
+            </div>
+            <div class="menubar-center">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索功能 (Ctrl+Shift+P)">
+                </div>
+            </div>
+            <div class="menubar-right">
+                <button class="menu-icon-button" title="账户">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <button class="menu-icon-button" title="设置">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主布局容器 -->
+        <div class="main-layout">
+            <!-- 活动栏 -->
+            <aside class="activity-bar">
+                <div class="activity-bar-items">
+                    <button class="activity-bar-item active" data-panel="explorer" title="资源管理器">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="activity-bar-item" data-panel="search" title="搜索">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="activity-bar-item" data-panel="source-control" title="源代码管理">
+                        <i class="fas fa-code-branch"></i>
+                    </button>
+                    <button class="activity-bar-item" data-panel="debug" title="调试">
+                        <i class="fas fa-bug"></i>
+                    </button>
+                    <button class="activity-bar-item" data-panel="extensions" title="扩展">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </button>
+                </div>
+                <div class="activity-bar-bottom">
+                    <button class="activity-bar-item" data-panel="accounts" title="账户">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="activity-bar-item" data-panel="settings" title="管理">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- 侧边栏 -->
+            <aside class="sidebar" id="sidebar">
+                <!-- 资源管理器面板 -->
+                <div class="sidebar-panel active" id="explorer-panel">
+                    <div class="sidebar-header">
+                        <h3>资源管理器</h3>
+                        <div class="sidebar-actions">
+                            <button class="icon-button" title="新建配置">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="icon-button" title="刷新">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="tree-container">
+                            <div class="tree-item" id="profiles-section">
+                                <div class="tree-item-header">
+                                    <i class="fas fa-chevron-down"></i>
+                                    <i class="fas fa-folder-open"></i>
+                                    <span>配置文件</span>
+                                </div>
+                                <div class="tree-item-children" id="profile-list">
+                                    <!-- 配置文件列表将动态生成 -->
+                                </div>
+                            </div>
+                            <div class="tree-item" id="environment-section">
+                                <div class="tree-item-header">
+                                    <i class="fas fa-chevron-down"></i>
+                                    <i class="fas fa-server"></i>
+                                    <span>环境状态</span>
+                                </div>
+                                <div class="tree-item-children">
+                                    <div class="env-status-item">
+                                        <i class="fas fa-circle status-icon"></i>
+                                        <span>Node.js</span>
+                                        <span class="status-text">检查中...</span>
+                                    </div>
+                                    <div class="env-status-item">
+                                        <i class="fas fa-circle status-icon"></i>
+                                        <span>Git</span>
+                                        <span class="status-text">检查中...</span>
+                                    </div>
+                                    <div class="env-status-item">
+                                        <i class="fas fa-circle status-icon"></i>
+                                        <span>Claude CLI</span>
+                                        <span class="status-text">检查中...</span>
+                                    </div>
+                                    <div class="env-status-item">
+                                        <i class="fas fa-circle status-icon"></i>
+                                        <span>代理服务</span>
+                                        <span class="status-text">未启动</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他面板（隐藏） -->
+                <div class="sidebar-panel" id="search-panel">
+                    <div class="sidebar-header">
+                        <h3>搜索</h3>
+                    </div>
+                    <div class="sidebar-content">
+                        <input type="text" class="search-input" placeholder="搜索">
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 编辑器区域 -->
+            <main class="editor-area">
+                <!-- 标签栏 -->
+                <div class="editor-tabs">
+                    <div class="tabs-container" id="editor-tabs">
+                        <div class="editor-tab active">
+                            <i class="fas fa-cog"></i>
+                            <span>配置管理</span>
+                            <button class="tab-close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tabs-actions">
+                        <button class="icon-button" title="拆分编辑器">
+                            <i class="fas fa-columns"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 编辑器内容 -->
+                <div class="editor-content">
+                    <!-- 配置管理视图 -->
+                    <div class="editor-view active" id="config-view">
+                        <div class="config-container">
+                            <div class="config-header">
+                                <h2>代理配置</h2>
+                                <div class="config-actions">
+                                    <button class="vscode-button primary" id="one-click-start">
+                                        <i class="fas fa-bolt"></i>
+                                        一键启动
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="config-form">
+                                <div class="form-section">
+                                    <h3>基本设置</h3>
+                                    <div class="form-group">
+                                        <label>配置名称</label>
+                                        <input type="text" id="config-name" class="vscode-input" placeholder="输入配置名称">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>API 地址</label>
+                                        <input type="url" id="api-url" class="vscode-input" placeholder="https://api.anthropic.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>API 密钥</label>
+                                        <div class="input-with-button">
+                                            <input type="password" id="api-key" class="vscode-input" placeholder="sk-ant-...">
+                                            <button class="icon-button" id="toggle-api-key">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3>模型设置</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>大模型</label>
+                                            <select id="big-model" class="vscode-select">
+                                                <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                                                <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                                                <option value="claude-3.5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>小模型</label>
+                                            <select id="small-model" class="vscode-select">
+                                                <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                                                <option value="claude-3.5-haiku-20241022">Claude 3.5 Haiku</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button class="vscode-button secondary" id="test-config">
+                                        <i class="fas fa-vial"></i>
+                                        测试配置
+                                    </button>
+                                    <button class="vscode-button primary" id="save-config">
+                                        <i class="fas fa-save"></i>
+                                        保存配置
+                                    </button>
+                                    <button class="vscode-button primary" id="start-proxy">
+                                        <i class="fas fa-play"></i>
+                                        启动代理
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 底部面板（终端） -->
+        <div class="panel-container" id="panel-container">
+            <div class="panel-header">
+                <div class="panel-tabs">
+                    <div class="panel-tab active" data-panel="terminal">
+                        <i class="fas fa-terminal"></i>
+                        终端
+                    </div>
+                    <div class="panel-tab" data-panel="output">
+                        <i class="fas fa-file-alt"></i>
+                        输出
+                    </div>
+                    <div class="panel-tab" data-panel="problems">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        问题
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button class="icon-button" id="new-terminal" title="新建终端">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="icon-button" id="clear-terminal" title="清空">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="icon-button" id="maximize-panel" title="最大化">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="icon-button" id="close-panel" title="关闭">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="panel-content">
+                <!-- 终端面板 -->
+                <div class="panel-view active" id="terminal-panel">
+                    <div class="terminal-tabs" id="terminal-tabs">
+                        <!-- 终端标签将动态生成 -->
+                    </div>
+                    <div class="terminal-container" id="terminal-container">
+                        <!-- 终端实例将动态创建 -->
+                    </div>
+                </div>
+                <!-- 输出面板 -->
+                <div class="panel-view" id="output-panel">
+                    <div class="output-content" id="output-content"></div>
+                </div>
+                <!-- 问题面板 -->
+                <div class="panel-view" id="problems-panel">
+                    <div class="problems-list" id="problems-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态栏 -->
+        <footer class="status-bar">
+            <div class="status-bar-left">
+                <div class="status-item">
+                    <i class="fas fa-circle status-indicator" id="proxy-status-indicator"></i>
+                    <span id="proxy-status-text">代理未启动</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-plug"></i>
+                    <span id="connection-status">未连接</span>
+                </div>
+            </div>
+            <div class="status-bar-center">
+                <div class="status-item clickable" id="open-claude-cli">
+                    <i class="fas fa-robot"></i>
+                    <span>Claude CLI</span>
+                </div>
+            </div>
+            <div class="status-bar-right">
+                <div class="status-item">
+                    <i class="fas fa-info-circle"></i>
+                    <span>UTF-8</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-bell"></i>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div id="toast-container"></div>
+
+    <!-- 加载提示 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>正在加载...</p>
+        </div>
+    </div>
+
+    <!-- 脚本加载 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addons/fit/fit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addons/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addons/web-links/web-links.min.js"></script>
+    
+    <!-- 应用脚本 -->
+    <script src="vscode-style-app.js"></script>
+</body>
+</html>
