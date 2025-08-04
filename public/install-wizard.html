@@ -6,13 +6,30 @@
     <title>Claude Code Proxy Pro - 安装向导</title>
     <link rel="stylesheet" href="vscode-style.css">
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .wizard-container {
+            width: 90%;
             max-width: 800px;
-            margin: 50px auto;
+            height: 85vh;
+            max-height: 700px;
             background: var(--vscode-editor-background);
             border: 1px solid var(--vscode-panel-border);
             border-radius: 8px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .wizard-header {
@@ -35,6 +52,9 @@
 
         .wizard-body {
             padding: 30px;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
         }
 
         .step-indicator {
@@ -95,11 +115,12 @@
         .check-item {
             display: flex;
             align-items: center;
-            padding: 15px;
-            margin: 10px 0;
+            padding: 12px 15px;
+            margin: 8px 0;
             background: var(--vscode-input-background);
             border-radius: 6px;
             transition: all 0.3s ease;
+            min-height: 50px;
         }
 
         .check-item.checking {
@@ -167,6 +188,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .api-key-input {
