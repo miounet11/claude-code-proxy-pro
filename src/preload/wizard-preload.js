@@ -5,6 +5,17 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
+// 确保粘贴功能正常工作
+window.addEventListener('DOMContentLoaded', () => {
+    // 阻止 Electron 的默认粘贴行为
+    document.addEventListener('paste', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+            // 允许在输入框中粘贴
+            e.stopPropagation();
+        }
+    }, true);
+});
+
 contextBridge.exposeInMainWorld('electronAPI', {
     // 系统信息
     getPlatform: () => ipcRenderer.invoke('get-platform'),

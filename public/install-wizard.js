@@ -299,10 +299,27 @@ async function startInstallation(items) {
             if (result.success) {
                 updateCheckItem(element, 'success', '安装成功');
             } else {
-                updateCheckItem(element, 'error', result.error || '安装失败');
+                // 显示详细错误信息
+                const errorMsg = result.error || '安装失败';
+                updateCheckItem(element, 'error', errorMsg);
+                
+                // 对于某些错误，提供重试选项
+                if (errorMsg.includes('网络') || errorMsg.includes('timeout')) {
+                    const retry = confirm(`${item.name} 安装失败：${errorMsg}\n\n是否重试？`);
+                    if (retry) {
+                        // 重试安装
+                        const retryResult = await window.electronAPI.installDependency(item.id);
+                        if (retryResult.success) {
+                            updateCheckItem(element, 'success', '安装成功（重试）');
+                        } else {
+                            updateCheckItem(element, 'error', `重试失败: ${retryResult.error}`);
+                        }
+                    }
+                }
             }
         } catch (error) {
             updateCheckItem(element, 'error', `安装失败: ${error.message}`);
+            console.error(`安装 ${item.name} 时出错:`, error);
         }
         
         completed++;
@@ -341,6 +358,19 @@ async function loadConfiguration() {
     // 验证输入
     const apiKeyInput = document.getElementById('api-key');
     apiKeyInput.addEventListener('input', validateApiKey);
+    apiKeyInput.addEventListener('paste', validateApiKey);
+    
+    // 确保粘贴功能正常工作
+    apiKeyInput.addEventListener('paste', (e) => {
+        e.stopPropagation();
+        setTimeout(validateApiKey, 100); // 延迟验证以确保粘贴的内容已更新
+    });
+    
+    // 添加右键菜单支持
+    apiKeyInput.addEventListener('contextmenu', (e) => {
+        e.stopPropagation();
+    });
+    
     validateApiKey();
 }
 

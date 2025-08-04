@@ -254,14 +254,46 @@ class ClaudeCodeProEnhanced {
         
         ipcMain.handle('install-dependency', async (event, name) => {
             try {
-                // 使用 AutoInstaller 安装依赖
-                const result = await this.autoInstaller.installDependencies((msg, progress) => {
-                    if (this.wizardWindow) {
-                        this.wizardWindow.webContents.send('install-progress', { message: msg, progress });
-                    }
-                });
+                this.logger.info(`开始安装依赖: ${name}`);
+                
+                // 根据不同的依赖项执行不同的安装逻辑
+                switch (name) {
+                    case 'uv':
+                        await this.autoInstaller.installUV((msg, progress) => {
+                            if (this.wizardWindow) {
+                                this.wizardWindow.webContents.send('install-progress', { message: msg, progress });
+                            }
+                        });
+                        break;
+                        
+                    case 'claude-code':
+                        await this.autoInstaller.installClaudeCode((msg, progress) => {
+                            if (this.wizardWindow) {
+                                this.wizardWindow.webContents.send('install-progress', { message: msg, progress });
+                            }
+                        });
+                        break;
+                        
+                    case 'proxy':
+                        await this.autoInstaller.setupProxyService((msg, progress) => {
+                            if (this.wizardWindow) {
+                                this.wizardWindow.webContents.send('install-progress', { message: msg, progress });
+                            }
+                        });
+                        break;
+                        
+                    default:
+                        // 通用安装逻辑
+                        await this.autoInstaller.installDependencies((msg, progress) => {
+                            if (this.wizardWindow) {
+                                this.wizardWindow.webContents.send('install-progress', { message: msg, progress });
+                            }
+                        });
+                }
+                
                 return { success: true };
             } catch (error) {
+                this.logger.error(`安装 ${name} 失败:`, error);
                 return { success: false, error: error.message };
             }
         });
