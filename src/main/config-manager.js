@@ -96,6 +96,20 @@ class ConfigManager {
   }
 
   /**
+   * 获取配置（getAll 的别名，保持向后兼容）
+   */
+  getConfig() {
+    return this.getAll();
+  }
+
+  /**
+   * 保存配置（update 的别名，保持向后兼容）
+   */
+  saveConfig(config) {
+    return this.update(config);
+  }
+
+  /**
    * 获取特定配置项
    */
   get(key, defaultValue = undefined) {

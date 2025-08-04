@@ -358,17 +358,138 @@ async function loadConfiguration() {
     // 验证输入
     const apiKeyInput = document.getElementById('api-key');
     apiKeyInput.addEventListener('input', validateApiKey);
-    apiKeyInput.addEventListener('paste', validateApiKey);
     
-    // 确保粘贴功能正常工作
-    apiKeyInput.addEventListener('paste', (e) => {
-        e.stopPropagation();
-        setTimeout(validateApiKey, 100); // 延迟验证以确保粘贴的内容已更新
+    // 处理粘贴按钮
+    const pasteBtn = document.getElementById('paste-btn');
+    if (pasteBtn) {
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                // 直接使用 Electron API，这是最可靠的方式
+                const text = await window.electronAPI.getClipboardText();
+                console.log('从剪贴板获取的文本长度:', text ? text.length : 0);
+                
+                if (text) {
+                    // 设置输入框的值
+                    apiKeyInput.value = text;
+                    // 触发 input 事件以更新验证状态
+                    apiKeyInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    // 触发 change 事件
+                    apiKeyInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    // 验证 API Key
+                    validateApiKey();
+                    // 聚焦输入框
+                    apiKeyInput.focus();
+                    // 选中文本
+                    apiKeyInput.select();
+                } else {
+                    console.warn('剪贴板为空');
+                }
+            } catch (error) {
+                console.error('粘贴失败:', error);
+                alert('粘贴失败，请手动输入 API Key');
+            }
+        });
+    }
+    
+    // 处理粘贴事件
+    apiKeyInput.addEventListener('paste', async (e) => {
+        console.log('检测到粘贴事件');
+        e.preventDefault(); // 阻止默认粘贴行为
+        
+        try {
+            // 优先使用 Electron API
+            const text = await window.electronAPI.getClipboardText();
+            if (text) {
+                console.log('使用 Electron API 粘贴成功');
+                apiKeyInput.value = text;
+                validateApiKey();
+            } else if (e.clipboardData || window.clipboardData) {
+                // 备用方案：使用事件数据
+                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                if (pastedData) {
+                    console.log('使用事件数据粘贴成功');
+                    apiKeyInput.value = pastedData;
+                    validateApiKey();
+                }
+            }
+        } catch (error) {
+            console.error('粘贴事件处理失败:', error);
+        }
     });
     
-    // 添加右键菜单支持
-    apiKeyInput.addEventListener('contextmenu', (e) => {
+    // 支持 Ctrl/Cmd + V
+    apiKeyInput.addEventListener('keydown', async (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+            console.log('检测到 Ctrl/Cmd + V');
+            e.preventDefault();
+            // 触发粘贴按钮的点击事件
+            if (pasteBtn) {
+                pasteBtn.click();
+            }
+        }
+    });
+    
+    // 右键菜单粘贴
+    apiKeyInput.addEventListener('contextmenu', async (e) => {
+        e.preventDefault();
         e.stopPropagation();
+        
+        // 创建自定义右键菜单
+        const contextMenu = document.createElement('div');
+        contextMenu.style.cssText = `
+            position: fixed;
+            z-index: 10000;
+            background: var(--vscode-menu-background, #252526);
+            border: 1px solid var(--vscode-menu-border, #464647);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            padding: 4px;
+            border-radius: 4px;
+            min-width: 120px;
+        `;
+        
+        const pasteOption = document.createElement('div');
+        pasteOption.textContent = '粘贴';
+        pasteOption.style.cssText = `
+            padding: 6px 12px;
+            cursor: pointer;
+            color: var(--vscode-menu-foreground, #cccccc);
+            font-size: 13px;
+        `;
+        
+        pasteOption.onmouseover = () => {
+            pasteOption.style.background = 'var(--vscode-menu-selectionBackground, #094771)';
+        };
+        
+        pasteOption.onmouseout = () => {
+            pasteOption.style.background = 'transparent';
+        };
+        
+        pasteOption.onclick = async () => {
+            document.body.removeChild(contextMenu);
+            if (pasteBtn) {
+                pasteBtn.click();
+            }
+        };
+        
+        contextMenu.appendChild(pasteOption);
+        
+        // 设置位置
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        
+        document.body.appendChild(contextMenu);
+        
+        // 点击其他地方关闭菜单
+        const closeMenu = () => {
+            if (document.body.contains(contextMenu)) {
+                document.body.removeChild(contextMenu);
+            }
+            document.removeEventListener('click', closeMenu);
+        };
+        
+        setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+        }, 0);
     });
     
     validateApiKey();
@@ -378,13 +499,31 @@ async function loadConfiguration() {
  * 验证 API Key
  */
 function validateApiKey() {
-    const apiKey = document.getElementById('api-key').value;
-    const isValid = apiKey.startsWith('sk-ant-') && apiKey.length > 20;
+    const apiKey = document.getElementById('api-key').value.trim();
+    
+    // 作为代理程序，我们支持多种 API Key 格式：
+    // 1. sk- 开头的各种格式（OpenAI、NewAPI 等）
+    // 2. 其他自定义格式
+    // 只要长度合理（大于 20 个字符）且格式看起来像 API Key 就接受
+    const isValid = apiKey.length > 20 && 
+                    /^[a-zA-Z0-9_-]+$/.test(apiKey);
+    
+    console.log('API Key 验证:', { 
+        apiKey: apiKey.substring(0, 20) + '...', // 只显示前20个字符
+        length: apiKey.length, 
+        isValid 
+    });
     
     document.getElementById('btn-next').disabled = !isValid;
     
     if (apiKey && !isValid) {
-        updateFooterStatus('请输入有效的 API Key');
+        if (apiKey.length <= 20) {
+            updateFooterStatus('API Key 长度不足（需要大于 20 个字符）');
+        } else if (!/^[a-zA-Z0-9_-]+$/.test(apiKey)) {
+            updateFooterStatus('API Key 包含无效字符（只允许字母、数字、下划线和连字符）');
+        } else {
+            updateFooterStatus('API Key 格式不正确');
+        }
     } else if (isValid) {
         updateFooterStatus('配置有效，可以继续');
     } else {

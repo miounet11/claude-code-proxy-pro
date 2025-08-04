@@ -359,17 +359,28 @@
                     
                     <div class="form-group">
                         <label for="api-key">API Key</label>
-                        <input 
-                            type="password" 
-                            id="api-key" 
-                            class="api-key-input" 
-                            placeholder="sk-ant-..." 
-                            autocomplete="off"
-                            onpaste="return true"
-                            style="-webkit-user-select: text; user-select: text;"
-                        >
+                        <div style="position: relative;">
+                            <input 
+                                type="password" 
+                                id="api-key" 
+                                class="api-key-input" 
+                                placeholder="sk-ant-..." 
+                                autocomplete="off"
+                                spellcheck="false"
+                                style="-webkit-user-select: text; user-select: text; padding-right: 60px;"
+                            >
+                            <button 
+                                type="button"
+                                id="paste-btn"
+                                class="paste-button"
+                                title="粘贴 API Key"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 5px 10px; background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 3px; cursor: pointer; font-size: 12px;"
+                            >
+                                粘贴
+                            </button>
+                        </div>
                         <div class="api-key-hint">
-                            您可以在 <a href="https://console.anthropic.com/account/keys" target="_blank">Anthropic Console</a> 获取 API Key
+                            支持多种 API Key 格式：Anthropic、OpenAI、NewAPI 等
                         </div>
                     </div>
                     
@@ -380,18 +391,20 @@
                         </label>
                     </div>
                     
-                    <div class="advanced-settings">
-                        <details>
-                            <summary>高级设置</summary>
+                    <div class="advanced-settings" style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px; color: var(--vscode-foreground);">高级设置</h3>
+                        <div style="padding: 15px; background: var(--vscode-editor-background); border: 1px solid var(--vscode-panel-border); border-radius: 6px;">
                             <div class="form-group">
                                 <label for="proxy-port">代理端口</label>
-                                <input type="number" id="proxy-port" value="8082" min="1024" max="65535">
+                                <input type="number" id="proxy-port" value="8082" min="1024" max="65535" class="api-key-input" style="width: 200px;">
+                                <div class="api-key-hint">本地代理服务将运行在此端口</div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="margin-top: 15px;">
                                 <label for="base-url">API Base URL</label>
-                                <input type="text" id="base-url" value="https://api.anthropic.com">
+                                <input type="text" id="base-url" value="https://api.anthropic.com" class="api-key-input">
+                                <div class="api-key-hint">Claude API 的基础 URL（通常不需要修改）</div>
                             </div>
-                        </details>
+                        </div>
                     </div>
                 </div>
 

@@ -311,10 +311,28 @@ class ClaudeCodeProEnhanced {
         });
         
         ipcMain.handle('open-main-app', () => {
-            this.createMainWindow();
+            // 如果主窗口已经存在，显示它
+            if (this.mainWindow) {
+                this.mainWindow.show();
+                this.mainWindow.focus();
+            } else {
+                this.createMainWindow();
+            }
+            
+            // 关闭安装向导窗口
             if (this.wizardWindow) {
                 this.wizardWindow.close();
             }
+        });
+        
+        // 剪贴板操作
+        ipcMain.handle('get-clipboard-text', () => {
+            return clipboard.readText();
+        });
+        
+        ipcMain.handle('set-clipboard-text', (event, text) => {
+            clipboard.writeText(text);
+            return true;
         });
         
         // === 主应用 IPC ===

@@ -262,29 +262,40 @@ class AutoInstaller {
         progressCallback('安装 Claude Code CLI...', 50);
         
         try {
-            // 使用 uv 安装 claude-cli (正确的包名)
-            const installCmd = 'uv tool install --force --python 3.12 claude-cli';
-            await this.executeCommand(installCmd);
+            // 优先使用 npm 安装 Claude Code
+            if (this.installStatus.npm) {
+                try {
+                    progressCallback('使用 npm 安装 Claude Code...', 52);
+                    await this.executeCommand('npm install -g @anthropic-ai/claude-code');
+                    this.installStatus.claudeCode = true;
+                    this.logger.info('Claude Code 通过 npm 安装成功');
+                    progressCallback('Claude Code 安装完成', 55);
+                    return;
+                } catch (npmError) {
+                    this.logger.warn('npm 安装失败，尝试其他方法:', npmError);
+                }
+            }
             
-            this.installStatus.claudeCode = true;
-            this.logger.info('Claude Code 安装成功');
+            // 备选：使用 uv 安装 Python 版本
+            try {
+                progressCallback('使用 uv 安装 claude...', 52);
+                const installCmd = 'uv tool install claude-cli';
+                await this.executeCommand(installCmd);
+                this.installStatus.claudeCode = true;
+                this.logger.info('Claude CLI 通过 uv 安装成功');
+            } catch (uvError) {
+                // 如果都失败，只是记录警告，不阻止流程
+                this.logger.warn('Claude Code 安装失败，但继续安装流程');
+                this.installStatus.claudeCode = false;
+            }
+            
             progressCallback('Claude Code 安装完成', 55);
             
         } catch (error) {
             this.logger.error('Claude Code 安装失败:', error);
-            
-            // 尝试使用 npm 安装作为备选方案
-            if (this.installStatus.npm) {
-                try {
-                    await this.executeCommand('npm install -g claude-code');
-                    this.installStatus.claudeCode = true;
-                    this.logger.info('Claude Code 通过 npm 安装成功');
-                } catch (npmError) {
-                    throw new Error('Claude Code 安装失败，请检查网络连接');
-                }
-            } else {
-                throw new Error('Claude Code 安装失败，需要 uv 或 npm');
-            }
+            // 不抛出错误，让安装流程继续
+            this.installStatus.claudeCode = false;
+            progressCallback('Claude Code 安装跳过，继续其他步骤', 55);
         }
     }
 

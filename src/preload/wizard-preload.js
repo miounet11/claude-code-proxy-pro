@@ -7,13 +7,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // 确保粘贴功能正常工作
 window.addEventListener('DOMContentLoaded', () => {
-    // 阻止 Electron 的默认粘贴行为
+    console.log('[Preload] DOM 加载完成，初始化粘贴事件');
+    
+    // 不要阻止任何粘贴事件，让它们正常冒泡
     document.addEventListener('paste', (e) => {
-        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
-            // 允许在输入框中粘贴
-            e.stopPropagation();
-        }
+        console.log('[Preload] 检测到粘贴事件', e.target?.tagName, e.target?.id);
     }, true);
+    
+    // 为输入框添加特殊处理
+    setTimeout(() => {
+        const apiKeyInput = document.getElementById('api-key');
+        if (apiKeyInput) {
+            console.log('[Preload] 找到 API Key 输入框');
+            // 删除可能存在的任何属性限制
+            apiKeyInput.removeAttribute('readonly');
+            apiKeyInput.removeAttribute('disabled');
+        }
+    }, 100);
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -53,5 +63,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 移除监听器
     removeAllListeners: () => {
         ipcRenderer.removeAllListeners('install-progress');
-    }
+    },
+    
+    // 剪贴板操作
+    getClipboardText: () => ipcRenderer.invoke('get-clipboard-text'),
+    setClipboardText: (text) => ipcRenderer.invoke('set-clipboard-text', text)
 });
