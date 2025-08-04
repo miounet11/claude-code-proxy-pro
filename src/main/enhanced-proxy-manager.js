@@ -463,7 +463,22 @@ class EnhancedProxyManager extends EventEmitter {
      */
     async checkCommand(command) {
         return new Promise((resolve) => {
-            require('child_process').exec(command, (error) => {
+            const path = require('path');
+            const os = require('os');
+            
+            // 添加额外的 PATH 路径
+            const extraPaths = [
+                path.join(os.homedir(), '.local', 'bin'),
+                path.join(os.homedir(), '.cargo', 'bin'),
+                path.join(os.homedir(), 'Documents', 'claude code', 'node-v20.10.0-darwin-arm64', 'bin'),
+                '/usr/local/bin',
+                '/opt/homebrew/bin'
+            ];
+            
+            const currentPath = process.env.PATH || '';
+            const newPath = [...extraPaths, ...currentPath.split(':')].join(':');
+            
+            require('child_process').exec(command, { env: { ...process.env, PATH: newPath } }, (error) => {
                 resolve(!error);
             });
         });

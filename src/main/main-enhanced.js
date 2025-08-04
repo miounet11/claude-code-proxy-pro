@@ -207,8 +207,11 @@ class ClaudeCodeProEnhanced {
                 const extraPaths = [
                     path.join(os.homedir(), '.local', 'bin'),
                     path.join(os.homedir(), '.cargo', 'bin'),
+                    path.join(os.homedir(), 'Documents', 'claude code', 'node-v20.10.0-darwin-arm64', 'bin'),
                     '/usr/local/bin',
-                    '/opt/homebrew/bin'
+                    '/opt/homebrew/bin',
+                    '/usr/bin',
+                    '/bin'
                 ];
                 
                 const currentPath = process.env.PATH || '';

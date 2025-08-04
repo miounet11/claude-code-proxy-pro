@@ -11,6 +11,7 @@ const os = require('os');
 const axios = require('axios');
 const { app } = require('electron');
 const { Logger } = require('./logger');
+const { execSync } = require('child_process');
 
 class AutoInstaller {
     constructor() {
@@ -86,11 +87,82 @@ class AutoInstaller {
     }
 
     /**
+     * 获取所有可能的命令路径
+     */
+    getAllPossiblePaths() {
+        const paths = [
+            // 用户特定路径
+            path.join(this.homeDir, '.local', 'bin'),
+            path.join(this.homeDir, '.cargo', 'bin'),
+            path.join(this.homeDir, 'Documents', 'claude code', 'node-v20.10.0-darwin-arm64', 'bin'),
+            path.join(this.homeDir, '.npm', 'bin'),
+            path.join(this.homeDir, 'bin'),
+            
+            // 系统路径
+            '/usr/local/bin',
+            '/opt/homebrew/bin',
+            '/opt/local/bin',
+            '/usr/bin',
+            '/bin',
+            '/usr/sbin',
+            '/sbin'
+        ];
+        
+        // 添加当前 PATH 中的路径
+        if (process.env.PATH) {
+            paths.push(...process.env.PATH.split(':'));
+        }
+        
+        // 去重
+        return [...new Set(paths)];
+    }
+
+    /**
+     * 查找命令的完整路径
+     */
+    async findCommandPath(commandName) {
+        const paths = this.getAllPossiblePaths();
+        
+        for (const dir of paths) {
+            const fullPath = path.join(dir, commandName);
+            try {
+                await fs.access(fullPath, fs.constants.X_OK);
+                return fullPath;
+            } catch {
+                // 继续查找
+            }
+        }
+        
+        // 尝试使用 which 命令
+        try {
+            const result = execSync(`which ${commandName}`, { encoding: 'utf8' }).trim();
+            if (result) return result;
+        } catch {
+            // which 命令失败
+        }
+        
+        return null;
+    }
+
+    /**
      * 检查命令是否可用
      */
     async checkCommand(command) {
+        // 提取命令名
+        const commandName = command.split(' ')[0];
+        
+        // 先尝试直接查找命令路径
+        const commandPath = await this.findCommandPath(commandName);
+        if (commandPath) {
+            this.logger.info(`找到命令 ${commandName}: ${commandPath}`);
+            return true;
+        }
+        
+        // 如果找不到，尝试使用扩展的 PATH 执行
         return new Promise((resolve) => {
-            exec(command, (error) => {
+            const newPath = this.getAllPossiblePaths().join(':');
+            
+            exec(command, { env: { ...process.env, PATH: newPath } }, (error) => {
                 resolve(!error);
             });
         });
