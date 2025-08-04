@@ -78,8 +78,8 @@ class AutoInstaller {
         // 检查 uv
         this.installStatus.uv = await this.checkCommand('uv --version');
         
-        // 检查 Claude Code
-        this.installStatus.claudeCode = await this.checkCommand('claude --version');
+        // 检查 Claude CLI
+        this.installStatus.claudeCode = await this.checkCommand('claude --help');
         
         this.logger.info('系统环境检查结果:', this.installStatus);
         progressCallback('系统环境检查完成', 20);
@@ -190,8 +190,8 @@ class AutoInstaller {
         progressCallback('安装 Claude Code CLI...', 50);
         
         try {
-            // 使用 uv 安装 claude-code
-            const installCmd = 'uv tool install --force claude-code';
+            // 使用 uv 安装 claude-cli (正确的包名)
+            const installCmd = 'uv tool install --force --python 3.12 claude-cli';
             await this.executeCommand(installCmd);
             
             this.installStatus.claudeCode = true;
@@ -411,17 +411,28 @@ LOG_LEVEL=info
      * 添加 uv 到 PATH
      */
     async addUVToPath() {
-        const uvPath = path.join(this.homeDir, '.cargo', 'bin');
+        // uv 默认安装路径
+        const uvPaths = [
+            path.join(this.homeDir, '.cargo', 'bin'),
+            path.join(this.homeDir, '.local', 'bin')
+        ];
         
         // 更新当前进程 PATH
-        if (!process.env.PATH.includes(uvPath)) {
-            process.env.PATH = `${uvPath}:${process.env.PATH}`;
+        for (const uvPath of uvPaths) {
+            if (!process.env.PATH.includes(uvPath) && await this.fileExists(uvPath)) {
+                process.env.PATH = `${uvPath}:${process.env.PATH}`;
+            }
         }
         
         // 持久化到 shell 配置
-        await this.updateShellConfig({
-            PATH: `${uvPath}:$PATH`
-        });
+        const pathExports = uvPaths
+            .filter(p => this.fileExists(p))
+            .map(p => `export PATH="${p}:$PATH"`)
+            .join('\n');
+            
+        if (pathExports) {
+            await this.updateShellConfig({ PATH_EXPORTS: pathExports });
+        }
     }
 
     /**
@@ -446,9 +457,16 @@ LOG_LEVEL=info
                     
                     // 添加环境变量
                     for (const [key, value] of Object.entries(envVars)) {
-                        const exportLine = `export ${key}="${value}"`;
-                        if (!content.includes(exportLine)) {
-                            content += `\n# Added by Claude Code Proxy Pro AutoInstaller\n${exportLine}\n`;
+                        if (key === 'PATH_EXPORTS') {
+                            // 特殊处理 PATH 导出
+                            if (!content.includes(value)) {
+                                content += `\n# Added by Claude Code Proxy Pro AutoInstaller\n${value}\n`;
+                            }
+                        } else {
+                            const exportLine = `export ${key}="${value}"`;
+                            if (!content.includes(exportLine)) {
+                                content += `\n# Added by Claude Code Proxy Pro AutoInstaller\n${exportLine}\n`;
+                            }
                         }
                     }
                     

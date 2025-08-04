@@ -203,7 +203,20 @@ class ClaudeCodeProEnhanced {
         
         ipcMain.handle('check-command', async (event, command) => {
             try {
-                const result = await this.executeCommand(command);
+                // 确保 PATH 包含常见的工具路径
+                const extraPaths = [
+                    path.join(os.homedir(), '.local', 'bin'),
+                    path.join(os.homedir(), '.cargo', 'bin'),
+                    '/usr/local/bin',
+                    '/opt/homebrew/bin'
+                ];
+                
+                const currentPath = process.env.PATH || '';
+                const newPath = [...extraPaths, ...currentPath.split(':')].join(':');
+                
+                const result = await this.executeCommand(command, { 
+                    env: { ...process.env, PATH: newPath } 
+                });
                 return { success: true, output: result };
             } catch (error) {
                 return { success: false, error: error.message };
@@ -650,9 +663,9 @@ class ClaudeCodeProEnhanced {
     /**
      * 执行命令
      */
-    executeCommand(command) {
+    executeCommand(command, options = {}) {
         return new Promise((resolve, reject) => {
-            require('child_process').exec(command, (error, stdout, stderr) => {
+            require('child_process').exec(command, options, (error, stdout, stderr) => {
                 if (error) {
                     reject(error);
                 } else {
