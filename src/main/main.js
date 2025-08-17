@@ -229,7 +229,7 @@ ipcMain.handle('start-claude-code', async (_, config) => {
     const env = {
       ...process.env,
       // Claude Code 会使用这些环境变量
-      ANTHROPIC_API_KEY: 'proxy-key', // 任意值，实际认证由代理处理
+      ANTHROPIC_API_KEY: 'sk-proxy-dummy', // 任意值，实际认证由代理处理
       ANTHROPIC_BASE_URL: `http://localhost:${proxyStatus.port}/v1`, // 指向我们的代理
       CLAUDE_CODE_MAX_OUTPUT_TOKENS: config.maxTokens || '32000',
       // 禁用 Claude Code 的 API 密钥验证
@@ -247,7 +247,7 @@ ipcMain.handle('start-claude-code', async (_, config) => {
     } else if (process.platform === 'darwin') {
       // macOS: 在新的终端窗口中启动
       const script = `
-        export ANTHROPIC_API_KEY="proxy-key"
+        export ANTHROPIC_API_KEY="sk-proxy-dummy"
         export ANTHROPIC_BASE_URL="http://localhost:${proxyStatus.port}/v1"
         export CLAUDE_CODE_MAX_OUTPUT_TOKENS="${config.maxTokens || '32000'}"
         claude
@@ -255,7 +255,7 @@ ipcMain.handle('start-claude-code', async (_, config) => {
       exec(`osascript -e 'tell app "Terminal" to do script "${script}"'`);
     } else {
       // Linux: 尝试在新终端中启动
-      exec(`gnome-terminal -- bash -c 'export ANTHROPIC_API_KEY="proxy-key" && export ANTHROPIC_BASE_URL="http://localhost:${proxyStatus.port}/v1" && claude; bash'`);
+      exec(`gnome-terminal -- bash -c 'export ANTHROPIC_API_KEY="sk-proxy-dummy" && export ANTHROPIC_BASE_URL="http://localhost:${proxyStatus.port}/v1" && claude; bash'`);
     }
     
     return { success: true, message: 'Claude Code 已启动' };

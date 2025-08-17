@@ -1666,18 +1666,18 @@ echo "代理端口: $PROXY_PORT"
             this.showToast('正在配置环境并启动 Claude...', 'info');
             
             // 设置环境变量命令和验证命令
-            const envCommands = [
-                `export ANTHROPIC_BASE_URL="http://localhost:${port}/v1"`,
-                `export ANTHROPIC_API_KEY="proxy-key"`,
-                `echo "✅ 代理环境已配置成功！"`,
-                `echo "🌐 代理地址: http://localhost:${port}/v1"`,
-                `echo ""`,
-                `echo "🚀 正在验证 Claude 连接..."`,
-                `claude "你好，Claude！请确认代理连接正常工作。"`,
-                `echo ""`,
-                `echo "✨ 验证完成！Claude 现在通过代理工作。"`,
-                `echo "💡 在 Cursor/VSCode 中使用请重新打开编辑器"`
-            ].join(' && ');
+const envCommands = [
+`export ANTHROPIC_BASE_URL="http://localhost:${port}/v1"`,
+`export ANTHROPIC_API_KEY="sk-proxy-dummy"`,
+`echo "✅ 代理环境已配置成功！"`,
+`echo " 🌐 代理地址: http://localhost:${port}/v1"`,
+`echo ""`,
+`echo "🚀 正在验证 Claude 连接..."`,
+`claude "你好，Claude！请确认代理连接正常工作。"`,
+`echo ""`,
+`echo "✨ 验证完成！Claude 现在通过代理工作。"`,
+`echo "💡 在 Cursor/VSCode 中使用请重新 打开编辑器"`
+].join(' && ');
             
             if (window.electronAPI && window.electronAPI.openTerminalWithCommand) {
                 await window.electronAPI.openTerminalWithCommand(envCommands);

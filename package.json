@@ -1,6 +1,6 @@
 {
   "name": "claude-code-proxy-pro",
-  "version": "3.3.5",
+  "version": "3.3.6",
   "description": "一个高效的Claude Code代理工具",
   "main": "src/main/main.js",
   "scripts": {
@@ -53,11 +53,14 @@
     "rimraf": "^5.0.5"
   },
   "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "axios": "^1.6.5",
     "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
+    "node-pty": "^1.0.0",
     "uuid": "^11.1.0"
   },
   "build": {
@@ -94,12 +97,14 @@
     ],
     "compression": "maximum",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
-    "publish": {
-      "provider": "github",
-      "owner": "miounet11",
-      "repo": "claude-code-proxy-pro",
-      "releaseType": "release"
-    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "miounet11",
+        "repo": "claude-code-proxy-pro",
+        "releaseType": "release"
+      }
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
@@ -203,14 +208,6 @@
         "Encoding": "UTF-8",
         "MimeType": "application/x-claude-proxy"
       }
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "miounet11",
-        "repo": "claude-code-proxy-pro",
-        "releaseType": "release"
-      }
-    ]
+    }
   }
 }
