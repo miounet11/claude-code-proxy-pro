@@ -808,3 +808,82 @@ if (window.electronAPI) {
         }
     });
 }
+
+(function initProxyStatusPanel() {
+  try {
+    const container = document.createElement('div');
+    container.id = 'proxy-status-panel';
+    container.style.position = 'fixed';
+    container.style.right = '16px';
+    container.style.bottom = '16px';
+    container.style.zIndex = '9999';
+    container.style.background = '#1e1e1e';
+    container.style.color = '#ddd';
+    container.style.border = '1px solid #333';
+    container.style.borderRadius = '8px';
+    container.style.padding = '12px';
+    container.style.boxShadow = '0 2px 10px rgba(0,0,0,0.4)';
+    container.innerHTML = `
+      <div style="font-weight:600;margin-bottom:8px;">Claude Code Proxy 状态</div>
+      <div id="proxy-health-text" style="font-size:12px;margin-bottom:8px;">检测中...</div>
+      <div style="display:flex;gap:8px;">
+        <button id="btn-start-proxy" style="padding:6px 10px;">启动</button>
+        <button id="btn-stop-proxy" style="padding:6px 10px;">停止</button>
+        <button id="btn-oneclick-fix" style="padding:6px 10px;">一键修复</button>
+      </div>
+    `;
+    document.body.appendChild(container);
+
+    const healthText = document.getElementById('proxy-health-text');
+    const btnStart = document.getElementById('btn-start-proxy');
+    const btnStop = document.getElementById('btn-stop-proxy');
+    const btnFix = document.getElementById('btn-oneclick-fix');
+
+    function setText(t) { healthText.textContent = t; }
+
+    // Receive health pushes
+    if (window.electronAPI && window.electronAPI.onProxyHealth) {
+      window.electronAPI.onProxyHealth((payload) => {
+        if (!payload) return;
+        if (payload.ok) {
+          const d = payload.data || {};
+          setText(`端口 ${payload.port} 正常 · OpenAI配置=${d.openai_api_configured ? '是' : '否'} · Key格式=${d.api_key_valid ? 'OK' : '无效'}`);
+        } else {
+          setText(`不可用：${payload.error || '未知错误'}`);
+        }
+      });
+    }
+
+    btnStart.addEventListener('click', async () => {
+      try {
+        setText('启动中...');
+        const res = await window.electronAPI.startProxy();
+        if (!res?.success) throw new Error(res?.error || '启动失败');
+        setText(`已启动，端口 ${res.port}`);
+      } catch (e) { setText(`启动失败：${e.message}`); }
+    });
+
+    btnStop.addEventListener('click', async () => {
+      try {
+        setText('停止中...');
+        const res = await window.electronAPI.stopProxy();
+        if (!res?.success) throw new Error(res?.error || '停止失败');
+        setText('已停止');
+      } catch (e) { setText(`停止失败：${e.message}`); }
+    });
+
+    btnFix.addEventListener('click', async () => {
+      try {
+        setText('一键修复中...');
+        const cfg = await window.electronAPI.getConfig();
+        const port = (cfg && cfg.port) || 8082;
+        const baseUrl = (cfg && cfg.baseUrl) || 'https://api.openai.com/v1';
+        const key = (cfg && cfg.apiKey) || '';
+        await window.electronAPI.runProxyInstaller({ port, openaiKey: key, anthropicKey: 'proxy-key', openaiBaseUrl: baseUrl });
+        await window.electronAPI.configureClaudeEnv({ port, anthropicKey: 'proxy-key', persist: true });
+        const v = await window.electronAPI.verifyProxy(port);
+        if (v?.success) setText('修复完成'); else setText('修复失败');
+      } catch (e) { setText(`修复失败：${e.message}`); }
+    });
+  } catch {}
+})();

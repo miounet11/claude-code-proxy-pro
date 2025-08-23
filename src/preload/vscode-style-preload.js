@@ -13,8 +13,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 代理管理
     startProxy: (config) => ipcRenderer.invoke('start-proxy', config),
     stopProxy: () => ipcRenderer.invoke('stop-proxy'),
-    getProxyStatus: () => ipcRenderer.invoke('get-proxy-status'),
-    testConnection: (config) => ipcRenderer.invoke('test-connection', config),
+    getConfig: () => ipcRenderer.invoke('get-config'),
+    runProxyInstaller: (args) => ipcRenderer.invoke('run-proxy-installer', args),
+    configureClaudeEnv: (args) => ipcRenderer.invoke('configure-claude-env', args),
+    verifyProxy: (port) => ipcRenderer.invoke('verify-claude-proxy', port),
+    onProxyHealth: (cb) => ipcRenderer.on('proxy-health', (_e, payload) => cb(payload)),
     
     // 环境检查
     checkCommand: (command) => ipcRenderer.invoke('check-command', command),

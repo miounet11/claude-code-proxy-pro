@@ -103,6 +103,9 @@ class ClaudeCodeProEnhanced {
             // 设置菜单
             this.setupMenu();
             
+            // 后台健康轮询
+            this.startHealthPolling();
+            
         } catch (error) {
             this.logger.error('初始化失败:', error);
             dialog.showErrorBox('初始化失败', error.message);
@@ -840,6 +843,32 @@ class ClaudeCodeProEnhanced {
         } catch (error) {
             this.logger.error('自动启动代理失败:', error);
         }
+    }
+
+    startHealthPolling() {
+        const poll = async () => {
+            try {
+                const cfg = await this.configManager.getConfig().catch(() => ({ port: 8082 }));
+                const port = (cfg && cfg.port) || 8082;
+                const status = await (async () => {
+                    try {
+                        const base = `http://127.0.0.1:${port}`;
+                        const res = await fetch(`${base}/health`);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const data = await res.json();
+                        return { ok: true, data };
+                    } catch (e) {
+                        return { ok: false, error: e.message };
+                    }
+                })();
+                this.sendToRenderer('proxy-health', { port, ...status });
+            } catch (e) {
+                this.sendToRenderer('proxy-health', { ok: false, error: e.message });
+            } finally {
+                setTimeout(poll, 5000);
+            }
+        };
+        poll();
     }
 
     /**
