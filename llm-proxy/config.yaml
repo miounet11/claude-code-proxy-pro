@@ -1,0 +1,23 @@
+litellm_settings:
+  # Master key for gateway auth, read from env in docker-compose
+  master_key: os.environ/LITELLM_MASTER_KEY
+  # Enable anthropic-compatible routes
+  anthropic_compatibility: true
+
+model_list:
+  # Expose an Anthropic-style model id which Claude Code will select
+  - model_name: claude-3-5-sonnet-20241022
+    litellm_params:
+      # Route to OpenAI model here; you can swap to o3, gpt-4o, etc.
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+      api_base: os.environ/OPENAI_API_BASE
+
+# Optional: fallback examples
+# router:
+#   strategy: simple_weighted
+#   routing_table:
+#     - model_name: claude-3-5-sonnet-20241022
+#       weights:
+#         - model: openai/gpt-4o
+#           weight: 1
