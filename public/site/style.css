@@ -1,0 +1,7 @@
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#0f1115;color:#e5e7eb}
+.section{max-width:960px;margin:0 auto;padding:24px}
+.card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:16px;margin:12px 0}
+a{color:#93c5fd}
+pre{background:#0b1220;border:1px solid #1f2937;border-radius:8px;padding:12px;overflow:auto}
+code{color:#cbd5e1}
+h1,h2,h3{color:#fff}

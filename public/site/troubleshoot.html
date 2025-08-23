@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>故障排查 - Claude Code Proxy Pro</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="section">
+    <h1>故障排查</h1>
+    <div class="card">
+      <h3>1. 代理是否在运行？</h3>
+      <pre><code>curl -sS http://127.0.0.1:8082/health | jq .
+</code></pre>
+      <p>若失败，点击应用右下角“状态面板 → 一键修复”。</p>
+    </div>
+    <div class="card">
+      <h3>2. 环境变量是否生效？</h3>
+      <pre><code>echo $ANTHROPIC_BASE_URL  # Windows PowerShell: $env:ANTHROPIC_BASE_URL
+</code></pre>
+      <p>若未指向 127.0.0.1:8082，执行：</p>
+      <pre><code>bash scripts/configure-claude-code.sh --anthropic-key my-proxy-key --port 8082 --persist
+</code></pre>
+    </div>
+    <div class="card">
+      <h3>3. 端口被占用？</h3>
+      <pre><code>lsof -iTCP -sTCP:LISTEN -P -n | grep :8082  # macOS/Linux
+netstat -ano | findstr :8082                # Windows
+</code></pre>
+      <p>应用会自动尝试在 8082-8102 选择可用端口，或在“安装脚本”中指定 --port。</p>
+    </div>
+    <div class="card">
+      <h3>4. 系统代理/公司网络影响？</h3>
+      <p>确保 NO_PROXY/no_proxy 包含 localhost,127.0.0.1（应用已自动合并），重启 VS Code/终端后重试。</p>
+    </div>
+    <div class="card">
+      <h3>导出诊断包</h3>
+      <p>应用内“系统体检 → 导出诊断包”并发送给支持人员（Key 已脱敏）。</p>
+    </div>
+  </div>
+</body>
+</html>

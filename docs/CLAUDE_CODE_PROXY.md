@@ -99,3 +99,17 @@ powershell -ExecutionPolicy Bypass -File scripts/configure-claude-code.ps1 -Anth
 - Claude Code 未走本地代理：确认环境变量在启动 Claude Code 的同一会话中生效；GUI 启动的应用需重启或从配置脚本持久化设置。
 - 系统代理干扰：确认 `NO_PROXY/no_proxy` 包含 `localhost,127.0.0.1`。
 - 端口连接失败：检查日志 `~/.cache/claude-code-proxy/server.log`，或确认端口未被占用。
+
+## 系统体检 Doctor（推荐）
+- 打开应用，左下角点击“系统体检”，一键体检。
+- 体检范围：代理健康、uv/Python、OpenAI Key、ANTHROPIC_* 环境、NO_PROXY、端口冲突、rc 重复项。
+- 点击“应用建议修复”自动执行修复（安装/配置/拉起代理）。
+- 点击“导出诊断包”可打包日志与配置（Key 脱敏）便于排障。
+
+## 配置快照 / 回滚
+- 在右下角状态面板点击“保存快照”，会保存当前配置副本（保留最近 10 个）。
+- 点击“回滚最近”可一键恢复到上一个快照，防止误配置。
+
+### 常见问答（补充）
+- 代理不通但体检显示端口占用：说明已有进程占用端口，执行“一键修复”或更换端口后重启。
+- VS Code/终端没继承环境变量：执行“持久化”配置并重启应用/终端。

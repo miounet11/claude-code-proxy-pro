@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>快速开始 - Claude Code Proxy Pro</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="section">
+    <h1>快速开始</h1>
+    <div class="card">
+      <h3>一键安装（应用内）</h3>
+      <ol>
+        <li>打开应用 → 安装向导 → 输入 OpenAI Key → 一键安装。</li>
+        <li>安装完成自动健康校验，显示“安装和配置已完成”。</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>命令行（可选）</h3>
+      <pre><code>bash scripts/install-claude-proxy.sh --openai-key sk-xxxx --port 8082
+bash scripts/configure-claude-code.sh --anthropic-key my-proxy-key --port 8082 --persist
+</code></pre>
+    </div>
+    <div class="card">
+      <h3>验证代理</h3>
+      <pre><code>curl -sS http://127.0.0.1:8082/health | jq .
+</code></pre>
+    </div>
+  </div>
+</body>
+</html>
