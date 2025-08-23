@@ -887,3 +887,88 @@ if (window.electronAPI) {
     });
   } catch {}
 })();
+
+(function initDoctorOverlay() {
+  try {
+    const btn = document.createElement('button');
+    btn.textContent = '系统体检';
+    btn.style.position = 'fixed';
+    btn.style.left = '16px';
+    btn.style.bottom = '16px';
+    btn.style.zIndex = '9999';
+    btn.style.padding = '6px 10px';
+    document.body.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.style.position = 'fixed';
+    panel.style.left = '16px';
+    panel.style.bottom = '56px';
+    panel.style.zIndex = '9999';
+    panel.style.background = '#1e1e1e';
+    panel.style.color = '#ddd';
+    panel.style.border = '1px solid #333';
+    panel.style.borderRadius = '8px';
+    panel.style.padding = '12px';
+    panel.style.minWidth = '360px';
+    panel.style.maxHeight = '50vh';
+    panel.style.overflow = 'auto';
+    panel.style.display = 'none';
+    panel.innerHTML = `
+      <div style="font-weight:600;margin-bottom:8px;">系统体检 Doctor</div>
+      <div id="doctor-results" style="font-size:12px;white-space:pre-line;line-height:1.6;">点击体检开始检测...</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button id="doctor-run">开始体检</button>
+        <button id="doctor-fix">应用建议修复</button>
+        <button id="doctor-export">导出诊断包</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    btn.addEventListener('click', () => {
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    const resultsDiv = panel.querySelector('#doctor-results');
+    const btnRun = panel.querySelector('#doctor-run');
+    const btnFix = panel.querySelector('#doctor-fix');
+    const btnExport = panel.querySelector('#doctor-export');
+
+    let lastResults = [];
+
+    btnRun.addEventListener('click', async () => {
+      resultsDiv.textContent = '体检中...';
+      try {
+        const cfg = await window.electronAPI.getConfig();
+        const r = await window.electronAPI.runDoctor({ port: (cfg && cfg.port) || 8082 });
+        if (!r?.success) throw new Error(r?.error || '体检失败');
+        lastResults = r.results || [];
+        const lines = lastResults.map(it => `- ${it.name}: ${it.status}${it.detail ? ' · ' + (typeof it.detail === 'string' ? it.detail : JSON.stringify(it.detail)) : ''}`);
+        resultsDiv.textContent = lines.join('\n');
+      } catch (e) { resultsDiv.textContent = `体检失败：${e.message}`; }
+    });
+
+    btnFix.addEventListener('click', async () => {
+      if (!lastResults || !lastResults.length) return;
+      resultsDiv.textContent = '应用修复...';
+      const cfg = await window.electronAPI.getConfig();
+      const ctx = { port: (cfg && cfg.port) || 8082, anthropicKey: 'proxy-key', openaiKey: (cfg && cfg.apiKey) || '' };
+      try {
+        for (const it of lastResults) {
+          if (it.status !== 'pass' && it.fixId) {
+            await window.electronAPI.applyFix(it.fixId, ctx);
+          }
+        }
+        resultsDiv.textContent = '修复完成，请重新体检确认';
+      } catch (e) { resultsDiv.textContent = `修复失败：${e.message}`; }
+    });
+
+    btnExport.addEventListener('click', async () => {
+      resultsDiv.textContent = '导出诊断包...';
+      try {
+        const r = await window.electronAPI.exportDiagnostics();
+        if (!r?.success) throw new Error(r?.error || '导出失败');
+        resultsDiv.textContent = `诊断包已生成：${r.file}`;
+      } catch (e) { resultsDiv.textContent = `导出失败：${e.message}`; }
+    });
+  } catch {}
+})();

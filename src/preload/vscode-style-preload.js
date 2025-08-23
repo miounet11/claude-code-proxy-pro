@@ -18,6 +18,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     configureClaudeEnv: (args) => ipcRenderer.invoke('configure-claude-env', args),
     verifyProxy: (port) => ipcRenderer.invoke('verify-claude-proxy', port),
     onProxyHealth: (cb) => ipcRenderer.on('proxy-health', (_e, payload) => cb(payload)),
+    // Doctor
+    runDoctor: (args) => ipcRenderer.invoke('run-doctor', args),
+    applyFix: (fixId, args) => ipcRenderer.invoke('apply-fix', fixId, args),
+    exportDiagnostics: () => ipcRenderer.invoke('export-diagnostics'),
     
     // 环境检查
     checkCommand: (command) => ipcRenderer.invoke('check-command', command),

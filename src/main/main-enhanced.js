@@ -481,6 +481,124 @@ class ClaudeCodeProEnhanced {
             }
         });
         
+        // === Doctor 诊断与修复 ===
+        ipcMain.handle('run-doctor', async (event, args = {}) => {
+            const results = [];
+            const cfg = await this.configManager.getConfig().catch(() => ({}));
+            const port = args.port || cfg.port || 8082;
+            // 1) 代理健康
+            try {
+                const base = `http://127.0.0.1:${port}`;
+                const res = await fetch(`${base}/health`);
+                if (res.ok) {
+                    const h = await res.json();
+                    results.push({ id: 'proxy-health', name: '代理健康', status: 'pass', detail: h });
+                } else {
+                    results.push({ id: 'proxy-health', name: '代理健康', status: 'fail', detail: `HTTP ${res.status}`, fixId: 'start-proxy' });
+                }
+            } catch (e) {
+                results.push({ id: 'proxy-health', name: '代理健康', status: 'fail', detail: e.message, fixId: 'start-proxy' });
+            }
+            // 2) uv 是否可用
+            results.push({ id: 'uv-present', name: 'uv 包管理器', status: (await this.commandExists('uv')) ? 'pass' : 'fail', fixId: 'install-uv' });
+            // 3) Python 是否可用
+            const pyOk = (await this.commandExists('python3')) || (await this.commandExists('python'));
+            results.push({ id: 'python-present', name: 'Python 环境', status: pyOk ? 'pass' : 'fail' });
+            // 4) OpenAI Key 配置
+            const envDir = path.join(os.homedir(), '.local', 'claude-code-proxy');
+            let envContent = '';
+            try { envContent = await fs.readFile(path.join(envDir, '.env'), 'utf8'); } catch {}
+            const openaiKey = (envContent.match(/^OPENAI_API_KEY="?(.+)"?/m) || [])[1] || process.env.OPENAI_API_KEY || '';
+            results.push({ id: 'openai-key', name: 'OpenAI Key', status: openaiKey && openaiKey.length > 20 ? 'pass' : 'fail' });
+            // 5) ANTHROPIC_* 环境
+            const ab = process.env.ANTHROPIC_BASE_URL || '';
+            const ak = process.env.ANTHROPIC_API_KEY || '';
+            const baseOk = /^http:\/\/127\.0\.0\.1:\d+/.test(ab);
+            results.push({ id: 'anthropic-env', name: 'Claude Code 环境变量', status: (baseOk && ak) ? 'pass' : 'fail', fixId: 'configure-env' });
+            // 6) NO_PROXY 合并
+            const np = process.env.NO_PROXY || process.env.no_proxy || '';
+            const npOk = /localhost/.test(np) && /127\.0\.0\.1/.test(np);
+            results.push({ id: 'no-proxy', name: 'NO_PROXY 设置', status: npOk ? 'pass' : 'warn', fixId: 'configure-env' });
+            // 7) 端口占用
+            const portOk = await this.proxyManager.isPortAvailable(port).catch(() => true);
+            results.push({ id: 'port', name: `端口 ${port}`, status: portOk ? 'pass' : 'warn' });
+            // 8) rc 文件重复定义
+            const rcFiles = [
+                path.join(os.homedir(), '.bashrc'),
+                path.join(os.homedir(), '.zshrc'),
+                path.join(os.homedir(), '.profile'),
+                path.join(os.homedir(), '.zprofile')
+            ];
+            let dupWarn = false;
+            for (const f of rcFiles) {
+                try {
+                    const txt = await fs.readFile(f, 'utf8');
+                    const dupA = (txt.match(/ANTHROPIC_BASE_URL=/g) || []).length > 1;
+                    const dupK = (txt.match(/ANTHROPIC_API_KEY=/g) || []).length > 1;
+                    if (dupA || dupK) { dupWarn = true; break; }
+                } catch {}
+            }
+            results.push({ id: 'rc-dup', name: 'Shell 配置重复定义', status: dupWarn ? 'warn' : 'pass', fixId: dupWarn ? 'configure-env' : undefined });
+            return { success: true, results };
+        });
+        
+        ipcMain.handle('apply-fix', async (event, fixId, args = {}) => {
+            try {
+                switch (fixId) {
+                    case 'install-uv':
+                        await this.autoInstaller.installUV(() => {});
+                        return { success: true };
+                    case 'configure-env':
+                        await this.executeCommand(`bash "${path.join(__dirname, '../../scripts/configure-claude-code.sh')}" --port ${args.port || 8082} --anthropic-key ${args.anthropicKey || 'proxy-key'} --persist`, { env: process.env });
+                        return { success: true };
+                    case 'start-proxy':
+                        await this.executeCommand(`bash "${path.join(__dirname, '../../scripts/install-claude-proxy.sh')}" --port ${args.port || 8082} ${args.openaiKey ? `--openai-key ${args.openaiKey}` : ''} ${args.anthropicKey ? `--anthropic-key ${args.anthropicKey}` : ''}`, { env: process.env });
+                        return { success: true };
+                    default:
+                        return { success: false, error: `未知修复项: ${fixId}` };
+                }
+            } catch (e) {
+                return { success: false, error: e.message };
+            }
+        });
+        
+        ipcMain.handle('export-diagnostics', async () => {
+            try {
+                const tmpDir = path.join(os.tmpdir(), `ccp-diag-${Date.now()}`);
+                await fs.mkdir(tmpDir, { recursive: true });
+                // 收集环境
+                const diag = {
+                    platform: process.platform,
+                    versions: process.versions,
+                    env: {
+                        ANTHROPIC_BASE_URL: process.env.ANTHROPIC_BASE_URL,
+                        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ? '***redacted***' : '',
+                        NO_PROXY: process.env.NO_PROXY || process.env.no_proxy || ''
+                    }
+                };
+                await fs.writeFile(path.join(tmpDir, 'env.json'), JSON.stringify(diag, null, 2));
+                // 复制日志与 .env
+                const cacheLog = path.join(os.homedir(), '.cache', 'claude-code-proxy', 'server.log');
+                const proxyEnv = path.join(os.homedir(), '.local', 'claude-code-proxy', '.env');
+                for (const f of [cacheLog, proxyEnv]) {
+                    try { await fs.copyFile(f, path.join(tmpDir, path.basename(f))); } catch {}
+                }
+                // 打包
+                const outBase = path.join(os.homedir(), `ccp-diagnostics-${Date.now()}`);
+                let archive;
+                if (process.platform === 'win32') {
+                    archive = `${outBase}.zip`;
+                    await this.executeCommand(`powershell -ExecutionPolicy Bypass -c "Compress-Archive -Path \"${tmpDir}/*\" -DestinationPath \"${archive}\" -Force"`);
+                } else {
+                    archive = `${outBase}.tar.gz`;
+                    await this.executeCommand(`tar -czf \"${archive}\" -C \"${tmpDir}\" .`);
+                }
+                return { success: true, file: archive };
+            } catch (e) {
+                return { success: false, error: e.message };
+            }
+        });
+        
         ipcMain.handle('stop-proxy', async () => {
             try {
                 await this.proxyManager.stop();
