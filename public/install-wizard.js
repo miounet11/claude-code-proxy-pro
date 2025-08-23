@@ -544,11 +544,46 @@ async function finishInstallation() {
         await window.electronAPI.saveConfig(installStatus.config);
     }
     
-    // 设置环境变量
+    // 设置环境变量（临时）
     await window.electronAPI.setEnvironment({
         ANTHROPIC_BASE_URL: `http://localhost:${installStatus.config.port}/v1`,
         ANTHROPIC_API_KEY: 'proxy-key'
     });
+    
+    // 运行一键安装（跨平台）：安装并启动 Python Proxy
+    updateFooterStatus('正在安装并启动代理服务...');
+    const installRes = await window.electronAPI.runProxyInstaller({
+        port: installStatus.config.port,
+        openaiKey: installStatus.config.apiKey,
+        anthropicKey: 'proxy-key',
+        openaiBaseUrl: installStatus.config.baseUrl
+    });
+    if (!installRes?.success) {
+        updateFooterStatus('代理服务安装失败：' + (installRes?.error || '未知错误'));
+        alert('代理服务安装失败，请查看日志');
+        return;
+    }
+    
+    // 持久化配置到 Shell/PowerShell
+    updateFooterStatus('正在写入系统环境配置...');
+    await window.electronAPI.configureClaudeEnv({
+        port: installStatus.config.port,
+        anthropicKey: 'proxy-key',
+        persist: true,
+        skipNoProxy: false
+    });
+    
+    // 健康校验
+    updateFooterStatus('正在校验本地代理健康...');
+    const verify = await window.electronAPI.verifyProxy(installStatus.config.port);
+    if (!verify?.success) {
+        updateFooterStatus('健康校验失败：' + (verify?.error || '未知错误'));
+        alert('健康校验失败，请检查网络与日志');
+        return;
+    }
+    if (!verify.messagesOk) {
+        updateFooterStatus('代理启动成功，但 /v1/messages 校验返回异常状态（可能因 API Key 校验），继续查看日志');
+    }
     
     updateFooterStatus('安装和配置已完成！');
     document.getElementById('btn-next').style.display = 'none';

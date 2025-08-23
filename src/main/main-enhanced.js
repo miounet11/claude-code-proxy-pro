@@ -383,6 +383,101 @@ class ClaudeCodeProEnhanced {
             }
         });
         
+        // 新增：运行一键安装脚本（跨平台）
+        ipcMain.handle('run-proxy-installer', async (event, args = {}) => {
+            try {
+                const scriptsDir = path.join(__dirname, '../../scripts');
+                const sh = path.join(scriptsDir, 'install-claude-proxy.sh');
+                const ps1 = path.join(scriptsDir, 'install-claude-proxy.ps1');
+                const port = args.port || 8082;
+                const openaiKey = args.openaiKey || '';
+                const anthropicKey = args.anthropicKey || '';
+                const baseUrl = args.openaiBaseUrl || 'https://api.openai.com/v1';
+                
+                const commonFlags = [
+                    `--port ${port}`,
+                    openaiKey ? `--openai-key ${openaiKey}` : '',
+                    anthropicKey ? `--anthropic-key ${anthropicKey}` : '',
+                    baseUrl ? `--openai-base-url ${baseUrl}` : ''
+                ].filter(Boolean).join(' ');
+                
+                let command;
+                if (process.platform === 'win32') {
+                    // Prefer PowerShell if available; fallback to bash if present (Git Bash)
+                    if (await this.commandExists('powershell')) {
+                        command = `powershell -ExecutionPolicy Bypass -File \"${ps1}\" ${commonFlags}`;
+                    } else if (await this.commandExists('bash')) {
+                        command = `bash \"${sh}\" ${commonFlags}`;
+                    } else {
+                        throw new Error('Neither PowerShell nor Bash is available on Windows');
+                    }
+                } else {
+                    command = `bash \"${sh}\" ${commonFlags}`;
+                }
+                
+                const output = await this.executeCommand(command, { env: process.env });
+                return { success: true, output };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        });
+        
+        // 新增：配置 Claude Code 环境（持久化等）
+        ipcMain.handle('configure-claude-env', async (event, args = {}) => {
+            try {
+                const scriptsDir = path.join(__dirname, '../../scripts');
+                const sh = path.join(scriptsDir, 'configure-claude-code.sh');
+                const ps1 = path.join(scriptsDir, 'configure-claude-code.ps1');
+                const port = args.port || 8082;
+                const anthropicKey = args.anthropicKey || 'any-value';
+                const persist = args.persist === true;
+                const skipNoProxy = args.skipNoProxy === true;
+                
+                let flags = [`--port ${port}`, `--anthropic-key ${anthropicKey}`];
+                if (persist) flags.push('--persist');
+                if (skipNoProxy) flags.push('--no-proxy-update');
+                const flagStr = flags.join(' ');
+                
+                let command;
+                if (process.platform === 'win32') {
+                    if (await this.commandExists('powershell')) {
+                        command = `powershell -ExecutionPolicy Bypass -File \"${ps1}\" -Port ${port} -AnthropicKey \"${anthropicKey}\"${persist ? ' -Persist' : ''}`;
+                    } else if (await this.commandExists('bash')) {
+                        command = `bash \"${sh}\" ${flagStr}`;
+                    } else {
+                        throw new Error('Neither PowerShell nor Bash is available on Windows');
+                    }
+                } else {
+                    command = `bash \"${sh}\" ${flagStr}`;
+                }
+                
+                const output = await this.executeCommand(command, { env: process.env });
+                return { success: true, output };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        });
+        
+        // 新增：校验 Python Proxy 健康状态
+        ipcMain.handle('verify-claude-proxy', async (event, port = 8082) => {
+            try {
+                const base = `http://127.0.0.1:${port}`;
+                const health = await fetch(`${base}/health`).then(r => r.json());
+                let messagesOk = false;
+                try {
+                    const resp = await fetch(`${base}/v1/messages`, {
+                        method: 'POST',
+                        headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY || 'any-value' },
+                        body: JSON.stringify({ model: 'claude-3-5-sonnet-20241022', max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] })
+                    });
+                    messagesOk = resp.status === 200 || resp.status === 401 || resp.status === 400;
+                } catch {}
+                return { success: true, health, messagesOk };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        });
+        
         ipcMain.handle('stop-proxy', async () => {
             try {
                 await this.proxyManager.stop();
@@ -725,6 +820,13 @@ class ClaudeCodeProEnhanced {
                     resolve(stdout.trim());
                 }
             });
+        });
+    }
+
+    async commandExists(cmd) {
+        return new Promise((resolve) => {
+            const whichCmd = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`;
+            require('child_process').exec(whichCmd, (err) => resolve(!err));
         });
     }
 
