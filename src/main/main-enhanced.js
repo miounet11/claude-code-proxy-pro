@@ -361,6 +361,17 @@ class ClaudeCodeProEnhanced {
             return await this.configManager.saveConfig(config);
         });
         
+        // 配置快照
+        ipcMain.handle('create-snapshot', async (event, note) => {
+            return this.configManager.createSnapshot(note || '');
+        });
+        ipcMain.handle('list-snapshots', async () => {
+            return this.configManager.getSnapshots();
+        });
+        ipcMain.handle('rollback-snapshot', async (event, snapshotId) => {
+            return this.configManager.rollbackTo(snapshotId);
+        });
+        
         // === 代理管理 ===
         ipcMain.handle('start-proxy', async (event, config) => {
             try {

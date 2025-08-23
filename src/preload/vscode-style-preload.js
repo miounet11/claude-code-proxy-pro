@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     runDoctor: (args) => ipcRenderer.invoke('run-doctor', args),
     applyFix: (fixId, args) => ipcRenderer.invoke('apply-fix', fixId, args),
     exportDiagnostics: () => ipcRenderer.invoke('export-diagnostics'),
+    // Snapshots
+    createSnapshot: (note) => ipcRenderer.invoke('create-snapshot', note),
+    listSnapshots: () => ipcRenderer.invoke('list-snapshots'),
+    rollbackSnapshot: (id) => ipcRenderer.invoke('rollback-snapshot', id),
     
     // 环境检查
     checkCommand: (command) => ipcRenderer.invoke('check-command', command),

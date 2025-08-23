@@ -888,6 +888,40 @@ if (window.electronAPI) {
   } catch {}
 })();
 
+(function initSnapshotControls() {
+  try {
+    const ctr = document.getElementById('proxy-status-panel');
+    if (!ctr) return;
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '8px';
+    row.style.marginTop = '8px';
+    row.innerHTML = `
+      <button id="btn-snap">保存快照</button>
+      <button id="btn-rollback">回滚最近</button>
+    `;
+    ctr.appendChild(row);
+
+    const btnSnap = row.querySelector('#btn-snap');
+    const btnRb = row.querySelector('#btn-rollback');
+
+    btnSnap.addEventListener('click', async () => {
+      try { await window.electronAPI.createSnapshot('manual'); alert('已保存快照'); } catch {}
+    });
+    btnRb.addEventListener('click', async () => {
+      try {
+        const snaps = await window.electronAPI.listSnapshots();
+        if (snaps && snaps.length) {
+          await window.electronAPI.rollbackSnapshot(snaps[0].id);
+          alert('已回滚到最近快照');
+        } else {
+          alert('没有可回滚的快照');
+        }
+      } catch (e) { alert('回滚失败'); }
+    });
+  } catch {}
+})();
+
 (function initDoctorOverlay() {
   try {
     const btn = document.createElement('button');
