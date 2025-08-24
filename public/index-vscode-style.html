@@ -185,14 +185,28 @@
                                     </div>
                                     <div class="form-group">
                                         <label>API 地址</label>
-                                        <input type="url" id="api-url" class="vscode-input" placeholder="https://api.anthropic.com">
+                                        <div class="input-with-button">
+                                            <input type="url" id="api-url" class="vscode-input" placeholder="https://api.anthropic.com" autocomplete="off" spellcheck="false" style="-webkit-user-select: text; user-select: text;">
+                                            <button class="icon-button" id="copy-api-url" title="复制">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                            <button class="icon-button" id="paste-api-url" title="粘贴">
+                                                <i class="fas fa-paste"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label>API 密钥</label>
                                         <div class="input-with-button">
-                                            <input type="password" id="api-key" class="vscode-input" placeholder="sk-ant-...">
+                                            <input type="password" id="api-key" class="vscode-input" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="-webkit-user-select: text; user-select: text;">
                                             <button class="icon-button" id="toggle-api-key">
                                                 <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="icon-button" id="copy-api-key" title="复制">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                            <button class="icon-button" id="paste-api-key" title="粘贴">
+                                                <i class="fas fa-paste"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -204,17 +218,31 @@
                                         <div class="form-group">
                                             <label>大模型</label>
                                             <select id="big-model" class="vscode-select">
-                                                <option value="claude-3-opus-20240229">Claude 3 Opus</option>
-                                                <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
-                                                <option value="claude-3.5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                                                <option value="claude-3-7-sonnet-20250219">claude-3-7-sonnet-20250219</option>
+                                                <option value="claude-3-7-sonnet-20250219-thinking">claude-3-7-sonnet-20250219-thinking</option>
+                                                <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514</option>
+                                                <option value="claude-sonnet-4-20250514-thinking">claude-sonnet-4-20250514-thinking</option>
+                                                <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
+                                                <option value="claude-opus-4-1-20250805">claude-opus-4-1-20250805</option>
+                                                <option value="claude-opus-4-1-20250805-thinking">claude-opus-4-1-20250805-thinking</option>
+                                                <option value="claude-opus-4-20250514">claude-opus-4-20250514</option>
+                                                <option value="claude-opus-4-20250514-thinking">claude-opus-4-20250514-thinking</option>
+                                                <option value="grok-3">grok-3</option>
+                                                <option value="grok-4">grok-4</option>
+                                                <option value="gpt-5">gpt-5</option>
+                                                <option value="__custom__">自定义...</option>
                                             </select>
+                                            <input type="text" id="big-model-custom" class="vscode-input" placeholder="输入自定义大模型名称" style="display:none; margin-top:8px;"/>
                                         </div>
                                         <div class="form-group">
                                             <label>小模型</label>
                                             <select id="small-model" class="vscode-select">
-                                                <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                                                <option value="claude-3.5-haiku-20241022">Claude 3.5 Haiku</option>
+                                                <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+                                                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                                                <option value="claude-3-haiku-20240307">claude-3-haiku-20240307</option>
+                                                <option value="__custom__">自定义...</option>
                                             </select>
+                                            <input type="text" id="small-model-custom" class="vscode-input" placeholder="输入自定义小模型名称" style="display:none; margin-top:8px;"/>
                                         </div>
                                     </div>
                                 </div>

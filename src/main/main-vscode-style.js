@@ -341,6 +341,15 @@ class ClaudeCodeProApp {
             return { success: true };
         });
 
+        // 读取/写入剪贴板文本（用于粘贴 API 地址/密钥）
+        ipcMain.handle('get-clipboard-text', () => {
+            return clipboard.readText();
+        });
+        ipcMain.handle('set-clipboard-text', (event, text) => {
+            clipboard.writeText(text || '');
+            return true;
+        });
+
         ipcMain.handle('open-external', async (event, url) => {
             await shell.openExternal(url);
             return { success: true };
