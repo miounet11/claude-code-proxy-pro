@@ -55,28 +55,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 获取版本
   getVersion: () => ipcRenderer.invoke('get-version'),
   
-  // 打开终端
-  openTerminal: () => ipcRenderer.invoke('open-terminal'),
-  openTerminalWithCommand: (command) => ipcRenderer.invoke('open-terminal-with-command', command),
-  
-  // 集成终端 API
+  // 终端与 CLI 功能已移除（提供空实现以避免渲染端报错）
+  openTerminal: () => false,
+  openTerminalWithCommand: () => false,
   terminal: {
-    create: (options) => ipcRenderer.invoke('terminal:create', options),
-    write: (terminalId, data) => ipcRenderer.invoke('terminal:write', terminalId, data),
-    resize: (terminalId, cols, rows) => ipcRenderer.invoke('terminal:resize', terminalId, cols, rows),
-    destroy: (terminalId) => ipcRenderer.invoke('terminal:destroy', terminalId),
-    info: (terminalId) => ipcRenderer.invoke('terminal:info', terminalId),
-    list: () => ipcRenderer.invoke('terminal:list'),
-    onData: (terminalId, callback) => {
-      const channel = `terminal:data:${terminalId}`;
-      ipcRenderer.on(channel, (event, data) => callback(data));
-      return () => ipcRenderer.removeAllListeners(channel);
-    },
-    onExit: (terminalId, callback) => {
-      const channel = `terminal:exit:${terminalId}`;
-      ipcRenderer.on(channel, (event, exitInfo) => callback(exitInfo));
-      return () => ipcRenderer.removeAllListeners(channel);
-    }
+    create: () => Promise.resolve({}),
+    write: () => Promise.resolve(false),
+    resize: () => Promise.resolve(false),
+    destroy: () => Promise.resolve(true),
+    info: () => Promise.resolve(null),
+    list: () => Promise.resolve([]),
+    onData: () => () => {},
+    onExit: () => () => {}
   },
   
   // 保存文件

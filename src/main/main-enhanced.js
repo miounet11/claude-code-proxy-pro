@@ -15,7 +15,6 @@ const EnhancedProxyManager = require('./enhanced-proxy-manager');
 const AutoInstaller = require('./auto-installer');
 const SystemEnvManager = require('./system-env-manager');
 const { Logger } = require('./logger');
-const TerminalAdapter = require('./terminal-adapter');
 
 class ClaudeCodeProEnhanced {
     constructor() {
@@ -26,9 +25,8 @@ class ClaudeCodeProEnhanced {
         this.autoInstaller = new AutoInstaller();
         this.envManager = new SystemEnvManager();
         this.logger = new Logger({ module: 'MainProcess' });
-        this.terminalService = new TerminalAdapter();
         
-        this.terminals = new Map();
+        // 终端相关功能已移除
         this.isQuitting = false;
         this.setupApp();
     }
@@ -672,54 +670,7 @@ class ClaudeCodeProEnhanced {
             return this.proxyManager.getStatus();
         });
         
-        // === 终端管理 ===
-        ipcMain.handle('create-terminal', async (event, options = {}) => {
-            try {
-                const terminalId = await this.terminalService.createTerminal(options);
-                this.terminals.set(terminalId, { 
-                    id: terminalId,
-                    createdAt: new Date()
-                });
-                return { success: true, terminalId };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        });
-        
-        ipcMain.handle('terminal-write', async (event, { terminalId, data }) => {
-            try {
-                await this.terminalService.write(terminalId, data);
-                return { success: true };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        });
-        
-        ipcMain.handle('terminal-resize', async (event, { terminalId, cols, rows }) => {
-            try {
-                await this.terminalService.resize(terminalId, cols, rows);
-                return { success: true };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        });
-        
-        ipcMain.handle('terminal-destroy', async (event, terminalId) => {
-            try {
-                await this.terminalService.destroyTerminal(terminalId);
-                this.terminals.delete(terminalId);
-                return { success: true };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        });
-        
-        // 终端数据传输
-        this.terminalService.on('terminal-data', ({ terminalId, data }) => {
-            if (this.mainWindow) {
-                this.mainWindow.webContents.send('terminal-data', { terminalId, data });
-            }
-        });
+        // 终端管理相关 IPC 已移除
         
         // === 快速操作 ===
         ipcMain.handle('quick-start', async () => {
@@ -816,11 +767,6 @@ class ClaudeCodeProEnhanced {
             {
                 label: '视图',
                 submenu: [
-                    {
-                        label: '切换终端',
-                        accelerator: 'CmdOrCtrl+`',
-                        click: () => this.sendToRenderer('toggle-terminal')
-                    },
                     {
                         label: '命令面板',
                         accelerator: 'CmdOrCtrl+Shift+P',
@@ -1063,12 +1009,7 @@ class ClaudeCodeProEnhanced {
         try {
             // 停止代理
             await this.proxyManager.stop();
-            
-            // 清理终端
-            for (const terminalId of this.terminals.keys()) {
-                await this.terminalService.destroyTerminal(terminalId);
-            }
-            
+            // 终端清理已移除
             this.logger.info('资源清理完成');
         } catch (error) {
             this.logger.error('清理资源失败:', error);
