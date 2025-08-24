@@ -415,6 +415,25 @@ class ClaudeCodeProEnhanced {
                     baseUrl ? `--openai-base-url ${baseUrl}` : ''
                 ].filter(Boolean).join(' ');
                 
+                // Fallback: if platform script is missing, use built-in flow
+                if (process.platform === 'win32') {
+                    const hasPs1 = await this.fileExists(ps1);
+                    if (!hasPs1) {
+                        this.logger.warn('安装脚本缺失，使用内置安装流程 (Windows)');
+                        await this.envManager.setProxyEnvironment(port, anthropicKey || 'proxy-key');
+                        await this.proxyManager.start({ port, apiKey: anthropicKey || 'proxy-key' });
+                        return { success: true, output: 'Built-in installer used (no ps1 script found)' };
+                    }
+                } else {
+                    const hasSh = await this.fileExists(sh);
+                    if (!hasSh) {
+                        this.logger.warn('安装脚本缺失，使用内置安装流程 (Unix)');
+                        await this.envManager.setProxyEnvironment(port, anthropicKey || 'proxy-key');
+                        await this.proxyManager.start({ port, apiKey: anthropicKey || 'proxy-key' });
+                        return { success: true, output: 'Built-in installer used (no sh script found)' };
+                    }
+                }
+                
                 let command;
                 if (process.platform === 'win32') {
                     // Prefer PowerShell if available; fallback to bash if present (Git Bash)
@@ -446,6 +465,14 @@ class ClaudeCodeProEnhanced {
                 const anthropicKey = args.anthropicKey || 'any-value';
                 const persist = args.persist === true;
                 const skipNoProxy = args.skipNoProxy === true;
+                
+                // If scripts are missing, configure via SystemEnvManager directly
+                const shExists = await this.fileExists(sh);
+                const psExists = await this.fileExists(ps1);
+                if ((process.platform !== 'win32' && !shExists) || (process.platform === 'win32' && !psExists)) {
+                    await this.envManager.setProxyEnvironment(port, anthropicKey || 'proxy-key');
+                    return { success: true, output: 'Environment set via built-in manager' };
+                }
                 
                 let flags = [`--port ${port}`, `--anthropic-key ${anthropicKey}`];
                 if (persist) flags.push('--persist');
@@ -560,10 +587,19 @@ class ClaudeCodeProEnhanced {
                         await this.autoInstaller.installUV(() => {});
                         return { success: true };
                     case 'configure-env':
-                        await this.executeCommand(`bash "${path.join(__dirname, '../../scripts/configure-claude-code.sh')}" --port ${args.port || 8082} --anthropic-key ${args.anthropicKey || 'proxy-key'} --persist`, { env: process.env });
+                        if (!(await this.fileExists(path.join(__dirname, '../../scripts/configure-claude-code.sh')))) {
+                            await this.envManager.setProxyEnvironment(args.port || 8082, args.anthropicKey || 'proxy-key');
+                        } else {
+                            await this.executeCommand(`bash "${path.join(__dirname, '../../scripts/configure-claude-code.sh')}" --port ${args.port || 8082} --anthropic-key ${args.anthropicKey || 'proxy-key'} --persist`, { env: process.env });
+                        }
                         return { success: true };
                     case 'start-proxy':
-                        await this.executeCommand(`bash "${path.join(__dirname, '../../scripts/install-claude-proxy.sh')}" --port ${args.port || 8082} ${args.openaiKey ? `--openai-key ${args.openaiKey}` : ''} ${args.anthropicKey ? `--anthropic-key ${args.anthropicKey}` : ''}`, { env: process.env });
+                        if (!(await this.fileExists(path.join(__dirname, '../../scripts/install-claude-proxy.sh')))) {
+                            await this.envManager.setProxyEnvironment(args.port || 8082, args.anthropicKey || 'proxy-key');
+                            await this.proxyManager.start({ port: args.port || 8082, apiKey: args.anthropicKey || 'proxy-key' });
+                        } else {
+                            await this.executeCommand(`bash "${path.join(__dirname, '../../scripts/install-claude-proxy.sh')}" --port ${args.port || 8082} ${args.openaiKey ? `--openai-key ${args.openaiKey}` : ''} ${args.anthropicKey ? `--anthropic-key ${args.anthropicKey}` : ''}`, { env: process.env });
+                        }
                         return { success: true };
                     default:
                         return { success: false, error: `未知修复项: ${fixId}` };
@@ -945,7 +981,16 @@ class ClaudeCodeProEnhanced {
      */
     executeCommand(command, options = {}) {
         return new Promise((resolve, reject) => {
-            require('child_process').exec(command, options, (error, stdout, stderr) => {
+            const extraPaths = [
+                path.join(os.homedir(), '.local', 'bin'),
+                path.join(os.homedir(), '.cargo', 'bin'),
+                '/usr/local/bin',
+                '/opt/homebrew/bin',
+                '/usr/bin',
+                '/bin'
+            ];
+            const env = { ...process.env, PATH: `${extraPaths.join(':')}:${process.env.PATH || ''}` };
+            require('child_process').exec(command, { ...options, env }, (error, stdout, stderr) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -1017,6 +1062,11 @@ class ClaudeCodeProEnhanced {
         } catch (error) {
             this.logger.error('清理资源失败:', error);
         }
+    }
+
+    // Helper: check file existence safely
+    async fileExists(filePath) {
+        try { await fs.access(filePath); return true; } catch { return false; }
     }
 }
 

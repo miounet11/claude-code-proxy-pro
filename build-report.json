@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-08-03T15:25:14.783Z",
-  "packageSize": 916087569,
-  "sourceSize": 214061,
-  "dependencies": 10,
-  "devDependencies": 3,
+  "timestamp": "2025-08-24T00:42:15.999Z",
+  "packageSize": 470282756,
+  "sourceSize": 307633,
+  "dependencies": 9,
+  "devDependencies": 4,
   "optimizations": {
     "asar": true,
     "compression": "maximum",

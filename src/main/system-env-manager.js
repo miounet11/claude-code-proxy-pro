@@ -17,13 +17,13 @@ class SystemEnvManager {
     /**
      * 设置代理环境变量
      */
-    async setProxyEnvironment(port = 8082) {
+    async setProxyEnvironment(port = 8082, apiKey = 'proxy-key') {
         try {
             logger.info('SystemEnv', 'Setting proxy environment variables', { port });
 
             const envVars = {
                 ANTHROPIC_BASE_URL: `http://localhost:${port}/v1`,
-                ANTHROPIC_API_KEY: 'proxy-key'
+                ANTHROPIC_API_KEY: apiKey || 'proxy-key'
             };
 
             // 根据平台选择设置方法
