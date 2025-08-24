@@ -114,11 +114,7 @@
                                         <span>Git</span>
                                         <span class="status-text">检查中...</span>
                                     </div>
-                                    <div class="env-status-item">
-                                        <i class="fas fa-circle status-icon"></i>
-                                        <span>Claude CLI</span>
-                                        <span class="status-text">检查中...</span>
-                                    </div>
+                                    <!-- Claude CLI 状态项已移除 -->
                                     <div class="env-status-item">
                                         <i class="fas fa-circle status-icon"></i>
                                         <span>代理服务</span>
@@ -268,14 +264,11 @@
             </main>
         </div>
 
-        <!-- 底部面板（终端） -->
-        <div class="panel-container" id="panel-container">
+        <!-- 底部面板（终端已移除，仅保留输出/问题可扩展） -->
+        <div class="panel-container" id="panel-container" style="display: none;">
             <div class="panel-header">
                 <div class="panel-tabs">
-                    <div class="panel-tab active" data-panel="terminal">
-                        <i class="fas fa-terminal"></i>
-                        终端
-                    </div>
+                    <!-- 终端标签已移除 -->
                     <div class="panel-tab" data-panel="output">
                         <i class="fas fa-file-alt"></i>
                         输出
@@ -301,15 +294,7 @@
                 </div>
             </div>
             <div class="panel-content">
-                <!-- 终端面板 -->
-                <div class="panel-view active" id="terminal-panel">
-                    <div class="terminal-tabs" id="terminal-tabs">
-                        <!-- 终端标签将动态生成 -->
-                    </div>
-                    <div class="terminal-container" id="terminal-container">
-                        <!-- 终端实例将动态创建 -->
-                    </div>
-                </div>
+                <!-- 终端面板已移除 -->
                 <!-- 输出面板 -->
                 <div class="panel-view" id="output-panel">
                     <div class="output-content" id="output-content"></div>
@@ -333,12 +318,7 @@
                     <span id="connection-status">未连接</span>
                 </div>
             </div>
-            <div class="status-bar-center">
-                <div class="status-item clickable" id="open-claude-cli">
-                    <i class="fas fa-robot"></i>
-                    <span>Claude CLI</span>
-                </div>
-            </div>
+            <div class="status-bar-center"></div>
             <div class="status-bar-right">
                 <div class="status-item">
                     <i class="fas fa-info-circle"></i>
@@ -362,11 +342,7 @@
         </div>
     </div>
 
-    <!-- 脚本加载 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/xterm.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addons/fit/fit.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addons/search/search.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/5.3.0/addons/web-links/web-links.min.js"></script>
+    <!-- 终端脚本已移除 -->
     
     <!-- 应用脚本 -->
     <script src="vscode-style-app.js"></script>
