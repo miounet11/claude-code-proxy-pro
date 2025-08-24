@@ -522,8 +522,14 @@ class ClaudeCodeProEnhanced {
         // === Doctor 诊断与修复 ===
         ipcMain.handle('run-doctor', async (event, args = {}) => {
             const results = [];
-            const cfg = await this.configManager.getConfig().catch(() => ({}));
-            const port = args.port || cfg.port || 8082;
+            let cfg = {};
+            try {
+                cfg = this.configManager.getConfig() || {};
+            } catch {
+                cfg = {};
+            }
+            const cfgPort = (cfg && (cfg.port || (cfg.proxy && cfg.proxy.port))) || undefined;
+            const port = args.port || cfgPort || 8082;
             // 1) 代理健康
             try {
                 const base = `http://127.0.0.1:${port}`;
@@ -1022,8 +1028,13 @@ class ClaudeCodeProEnhanced {
     startHealthPolling() {
         const poll = async () => {
             try {
-                const cfg = await this.configManager.getConfig().catch(() => ({ port: 8082 }));
-                const port = (cfg && cfg.port) || 8082;
+                let cfg = {};
+                try {
+                    cfg = this.configManager.getConfig() || {};
+                } catch {
+                    cfg = {};
+                }
+                const port = (cfg && (cfg.port || (cfg.proxy && cfg.proxy.port))) || 8082;
                 const status = await (async () => {
                     try {
                         const base = `http://127.0.0.1:${port}`;
