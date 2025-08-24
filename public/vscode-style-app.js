@@ -71,6 +71,92 @@ class ClaudeCodeApp {
             }
         });
 
+        // 允许 API 地址/密钥 粘贴与选择
+        const pasteApiUrlBtn = document.getElementById('paste-api-url');
+        if (pasteApiUrlBtn) {
+            pasteApiUrlBtn.addEventListener('click', async () => {
+                try {
+                    const text = await window.electronAPI.getClipboardText();
+                    if (text) {
+                        const input = document.getElementById('api-url');
+                        input.value = text.trim();
+                        input.focus();
+                        input.select();
+                    }
+                } catch {}
+            });
+        }
+        const copyApiUrlBtn = document.getElementById('copy-api-url');
+        if (copyApiUrlBtn) {
+            copyApiUrlBtn.addEventListener('click', async () => {
+                try {
+                    const input = document.getElementById('api-url');
+                    await window.electronAPI.setClipboardText(input.value || '');
+                    this.showToast('API 地址已复制', 'success');
+                } catch {}
+            });
+        }
+        const pasteApiKeyBtn = document.getElementById('paste-api-key');
+        if (pasteApiKeyBtn) {
+            pasteApiKeyBtn.addEventListener('click', async () => {
+                try {
+                    const text = await window.electronAPI.getClipboardText();
+                    if (text) {
+                        const input = document.getElementById('api-key');
+                        input.value = text.trim();
+                        input.focus();
+                        input.select();
+                    }
+                } catch {}
+            });
+        }
+        const copyApiKeyBtn = document.getElementById('copy-api-key');
+        if (copyApiKeyBtn) {
+            copyApiKeyBtn.addEventListener('click', async () => {
+                try {
+                    const input = document.getElementById('api-key');
+                    await window.electronAPI.setClipboardText(input.value || '');
+                    this.showToast('API 密钥已复制', 'success');
+                } catch {}
+            });
+        }
+        // 右键菜单快速粘贴
+        const attachContextPaste = (inputId) => {
+            const el = document.getElementById(inputId);
+            if (!el) return;
+            el.addEventListener('contextmenu', async (e) => {
+                e.preventDefault();
+                try {
+                    const text = await window.electronAPI.getClipboardText();
+                    if (text) {
+                        el.value = text.trim();
+                        el.focus();
+                        el.select();
+                    }
+                } catch {}
+            });
+        };
+        attachContextPaste('api-url');
+        attachContextPaste('api-key');
+
+        // 模型自定义输入显隐
+        const bigModelSelect = document.getElementById('big-model');
+        const smallModelSelect = document.getElementById('small-model');
+        const bigModelCustom = document.getElementById('big-model-custom');
+        const smallModelCustom = document.getElementById('small-model-custom');
+        if (bigModelSelect && bigModelCustom) {
+            bigModelSelect.addEventListener('change', () => {
+                const custom = bigModelSelect.value === '__custom__';
+                bigModelCustom.style.display = custom ? 'block' : 'none';
+            });
+        }
+        if (smallModelSelect && smallModelCustom) {
+            smallModelSelect.addEventListener('change', () => {
+                const custom = smallModelSelect.value === '__custom__';
+                smallModelCustom.style.display = custom ? 'block' : 'none';
+            });
+        }
+
         // 终端操作
         document.getElementById('new-terminal').addEventListener('click', () => this.createNewTerminal());
         document.getElementById('clear-terminal').addEventListener('click', () => this.clearCurrentTerminal());
@@ -179,8 +265,26 @@ class ClaudeCodeApp {
         document.getElementById('config-name').value = profile.name;
         document.getElementById('api-url').value = profile.apiUrl;
         document.getElementById('api-key').value = profile.apiKey;
-        document.getElementById('big-model').value = profile.bigModel;
-        document.getElementById('small-model').value = profile.smallModel;
+        // 处理大模型自定义
+        const bigSel = document.getElementById('big-model');
+        const bigCustom = document.getElementById('big-model-custom');
+        if (profile.bigModel && Array.from(bigSel.options).some(o => o.value === profile.bigModel)) {
+            bigSel.value = profile.bigModel;
+            if (bigCustom) bigCustom.style.display = 'none';
+        } else {
+            bigSel.value = '__custom__';
+            if (bigCustom) { bigCustom.style.display = 'block'; bigCustom.value = profile.bigModel || ''; }
+        }
+        // 处理小模型自定义
+        const smallSel = document.getElementById('small-model');
+        const smallCustom = document.getElementById('small-model-custom');
+        if (profile.smallModel && Array.from(smallSel.options).some(o => o.value === profile.smallModel)) {
+            smallSel.value = profile.smallModel;
+            if (smallCustom) smallCustom.style.display = 'none';
+        } else {
+            smallSel.value = '__custom__';
+            if (smallCustom) { smallCustom.style.display = 'block'; smallCustom.value = profile.smallModel || ''; }
+        }
         
         // 更新 UI 状态
         document.querySelectorAll('.profile-item').forEach(item => {
@@ -195,8 +299,20 @@ class ClaudeCodeApp {
             name: document.getElementById('config-name').value,
             apiUrl: document.getElementById('api-url').value,
             apiKey: document.getElementById('api-key').value,
-            bigModel: document.getElementById('big-model').value,
-            smallModel: document.getElementById('small-model').value
+            bigModel: (() => {
+                const sel = document.getElementById('big-model');
+                if (sel.value === '__custom__') {
+                    return document.getElementById('big-model-custom').value.trim();
+                }
+                return sel.value;
+            })(),
+            smallModel: (() => {
+                const sel = document.getElementById('small-model');
+                if (sel.value === '__custom__') {
+                    return document.getElementById('small-model-custom').value.trim();
+                }
+                return sel.value;
+            })()
         };
         
         if (!profile.name || !profile.apiUrl || !profile.apiKey) {

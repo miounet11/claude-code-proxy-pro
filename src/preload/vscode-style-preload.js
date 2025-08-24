@@ -71,6 +71,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     
     // 系统操作
     copyToClipboard: (text) => ipcRenderer.invoke('copy-to-clipboard', text),
+    getClipboardText: () => ipcRenderer.invoke('get-clipboard-text'),
+    setClipboardText: (text) => ipcRenderer.invoke('set-clipboard-text', text),
     openExternal: (url) => ipcRenderer.invoke('open-external', url),
     showItemInFolder: (path) => ipcRenderer.invoke('show-item-in-folder', path),
     
