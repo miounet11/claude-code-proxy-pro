@@ -52,6 +52,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 代理管理
     startProxy: (config) => ipcRenderer.invoke('start-proxy', config),
     
+    // 新增：运行一键安装脚本（跨平台）
+    runProxyInstaller: (args) => ipcRenderer.invoke('run-proxy-installer', args),
+    // 新增：配置 Claude Code 环境（持久化等）
+    configureClaudeEnv: (args) => ipcRenderer.invoke('configure-claude-env', args),
+    // 新增：校验 Python Proxy 健康状态
+    verifyProxy: (port) => ipcRenderer.invoke('verify-claude-proxy', port),
+    
     // 应用控制
     openMainApp: () => ipcRenderer.invoke('open-main-app'),
     

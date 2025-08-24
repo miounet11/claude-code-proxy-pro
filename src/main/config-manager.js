@@ -180,7 +180,50 @@ class ConfigManager {
       return false;
     }
   }
-
+  
+  /**
+   * 创建配置快照（带时间戳和备注），保留最近 10 个
+   */
+  createSnapshot(note = '') {
+    try {
+      const config = this.getAll();
+      const snapshots = this.store.get('snapshots', []);
+      const snap = {
+        id: Date.now().toString(),
+        note,
+        createdAt: new Date().toISOString(),
+        config
+      };
+      const next = [snap, ...snapshots].slice(0, 10);
+      this.store.set('snapshots', next);
+      return snap.id;
+    } catch (e) {
+      console.error('Failed to create snapshot:', e);
+      return null;
+    }
+  }
+  
+  getSnapshots() {
+    return this.store.get('snapshots', []);
+  }
+  
+  /**
+   * 回滚到指定快照
+   */
+  rollbackTo(snapshotId) {
+    try {
+      const snaps = this.store.get('snapshots', []);
+      const snap = snaps.find(s => s.id === snapshotId);
+      if (!snap) throw new Error('Snapshot not found');
+      this.store.set('config', snap.config);
+      this.notifyChange('*', snap.config);
+      return true;
+    } catch (e) {
+      console.error('Failed to rollback:', e);
+      return false;
+    }
+  }
+  
   /**
    * 重置配置到默认值
    */

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ - Claude Code Proxy Pro</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="section">
+    <h1>FAQ</h1>
+    <div class="card">
+      <h3>需要管理员权限吗？</h3>
+      <p>默认无需。我们执行 per-user 安装与持久化；仅在极少数系统策略下可能需要权限。</p>
+    </div>
+    <div class="card">
+      <h3>公司网络/代理影响怎么办？</h3>
+      <p>应用会合并 NO_PROXY/no_proxy 加入 localhost,127.0.0.1；若仍受限，请联系网络管理员或使用 Azure OpenAI。</p>
+    </div>
+    <div class="card">
+      <h3>如何回滚配置？</h3>
+      <p>状态面板“保存快照/回滚最近”，或在设置中选择具体快照。</p>
+    </div>
+  </div>
+</body>
+</html>

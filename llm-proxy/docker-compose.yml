@@ -1,0 +1,14 @@
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm
+    command: ["--port", "4000", "--config", "/app/config.yaml", "--detailed_debug"]
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    ports:
+      - "4000:4000"
+    restart: unless-stopped

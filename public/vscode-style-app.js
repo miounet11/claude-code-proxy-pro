@@ -808,3 +808,201 @@ if (window.electronAPI) {
         }
     });
 }
+
+(function initProxyStatusPanel() {
+  try {
+    const container = document.createElement('div');
+    container.id = 'proxy-status-panel';
+    container.style.position = 'fixed';
+    container.style.right = '16px';
+    container.style.bottom = '16px';
+    container.style.zIndex = '9999';
+    container.style.background = '#1e1e1e';
+    container.style.color = '#ddd';
+    container.style.border = '1px solid #333';
+    container.style.borderRadius = '8px';
+    container.style.padding = '12px';
+    container.style.boxShadow = '0 2px 10px rgba(0,0,0,0.4)';
+    container.innerHTML = `
+      <div style="font-weight:600;margin-bottom:8px;">Claude Code Proxy 状态</div>
+      <div id="proxy-health-text" style="font-size:12px;margin-bottom:8px;">检测中...</div>
+      <div style="display:flex;gap:8px;">
+        <button id="btn-start-proxy" style="padding:6px 10px;">启动</button>
+        <button id="btn-stop-proxy" style="padding:6px 10px;">停止</button>
+        <button id="btn-oneclick-fix" style="padding:6px 10px;">一键修复</button>
+      </div>
+    `;
+    document.body.appendChild(container);
+
+    const healthText = document.getElementById('proxy-health-text');
+    const btnStart = document.getElementById('btn-start-proxy');
+    const btnStop = document.getElementById('btn-stop-proxy');
+    const btnFix = document.getElementById('btn-oneclick-fix');
+
+    function setText(t) { healthText.textContent = t; }
+
+    // Receive health pushes
+    if (window.electronAPI && window.electronAPI.onProxyHealth) {
+      window.electronAPI.onProxyHealth((payload) => {
+        if (!payload) return;
+        if (payload.ok) {
+          const d = payload.data || {};
+          setText(`端口 ${payload.port} 正常 · OpenAI配置=${d.openai_api_configured ? '是' : '否'} · Key格式=${d.api_key_valid ? 'OK' : '无效'}`);
+        } else {
+          setText(`不可用：${payload.error || '未知错误'}`);
+        }
+      });
+    }
+
+    btnStart.addEventListener('click', async () => {
+      try {
+        setText('启动中...');
+        const res = await window.electronAPI.startProxy();
+        if (!res?.success) throw new Error(res?.error || '启动失败');
+        setText(`已启动，端口 ${res.port}`);
+      } catch (e) { setText(`启动失败：${e.message}`); }
+    });
+
+    btnStop.addEventListener('click', async () => {
+      try {
+        setText('停止中...');
+        const res = await window.electronAPI.stopProxy();
+        if (!res?.success) throw new Error(res?.error || '停止失败');
+        setText('已停止');
+      } catch (e) { setText(`停止失败：${e.message}`); }
+    });
+
+    btnFix.addEventListener('click', async () => {
+      try {
+        setText('一键修复中...');
+        const cfg = await window.electronAPI.getConfig();
+        const port = (cfg && cfg.port) || 8082;
+        const baseUrl = (cfg && cfg.baseUrl) || 'https://api.openai.com/v1';
+        const key = (cfg && cfg.apiKey) || '';
+        await window.electronAPI.runProxyInstaller({ port, openaiKey: key, anthropicKey: 'proxy-key', openaiBaseUrl: baseUrl });
+        await window.electronAPI.configureClaudeEnv({ port, anthropicKey: 'proxy-key', persist: true });
+        const v = await window.electronAPI.verifyProxy(port);
+        if (v?.success) setText('修复完成'); else setText('修复失败');
+      } catch (e) { setText(`修复失败：${e.message}`); }
+    });
+  } catch {}
+})();
+
+(function initSnapshotControls() {
+  try {
+    const ctr = document.getElementById('proxy-status-panel');
+    if (!ctr) return;
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '8px';
+    row.style.marginTop = '8px';
+    row.innerHTML = `
+      <button id="btn-snap">保存快照</button>
+      <button id="btn-rollback">回滚最近</button>
+    `;
+    ctr.appendChild(row);
+
+    const btnSnap = row.querySelector('#btn-snap');
+    const btnRb = row.querySelector('#btn-rollback');
+
+    btnSnap.addEventListener('click', async () => {
+      try { await window.electronAPI.createSnapshot('manual'); alert('已保存快照'); } catch {}
+    });
+    btnRb.addEventListener('click', async () => {
+      try {
+        const snaps = await window.electronAPI.listSnapshots();
+        if (snaps && snaps.length) {
+          await window.electronAPI.rollbackSnapshot(snaps[0].id);
+          alert('已回滚到最近快照');
+        } else {
+          alert('没有可回滚的快照');
+        }
+      } catch (e) { alert('回滚失败'); }
+    });
+  } catch {}
+})();
+
+(function initDoctorOverlay() {
+  try {
+    const btn = document.createElement('button');
+    btn.textContent = '系统体检';
+    btn.style.position = 'fixed';
+    btn.style.left = '16px';
+    btn.style.bottom = '16px';
+    btn.style.zIndex = '9999';
+    btn.style.padding = '6px 10px';
+    document.body.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.style.position = 'fixed';
+    panel.style.left = '16px';
+    panel.style.bottom = '56px';
+    panel.style.zIndex = '9999';
+    panel.style.background = '#1e1e1e';
+    panel.style.color = '#ddd';
+    panel.style.border = '1px solid #333';
+    panel.style.borderRadius = '8px';
+    panel.style.padding = '12px';
+    panel.style.minWidth = '360px';
+    panel.style.maxHeight = '50vh';
+    panel.style.overflow = 'auto';
+    panel.style.display = 'none';
+    panel.innerHTML = `
+      <div style="font-weight:600;margin-bottom:8px;">系统体检 Doctor</div>
+      <div id="doctor-results" style="font-size:12px;white-space:pre-line;line-height:1.6;">点击体检开始检测...</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button id="doctor-run">开始体检</button>
+        <button id="doctor-fix">应用建议修复</button>
+        <button id="doctor-export">导出诊断包</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    btn.addEventListener('click', () => {
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    const resultsDiv = panel.querySelector('#doctor-results');
+    const btnRun = panel.querySelector('#doctor-run');
+    const btnFix = panel.querySelector('#doctor-fix');
+    const btnExport = panel.querySelector('#doctor-export');
+
+    let lastResults = [];
+
+    btnRun.addEventListener('click', async () => {
+      resultsDiv.textContent = '体检中...';
+      try {
+        const cfg = await window.electronAPI.getConfig();
+        const r = await window.electronAPI.runDoctor({ port: (cfg && cfg.port) || 8082 });
+        if (!r?.success) throw new Error(r?.error || '体检失败');
+        lastResults = r.results || [];
+        const lines = lastResults.map(it => `- ${it.name}: ${it.status}${it.detail ? ' · ' + (typeof it.detail === 'string' ? it.detail : JSON.stringify(it.detail)) : ''}`);
+        resultsDiv.textContent = lines.join('\n');
+      } catch (e) { resultsDiv.textContent = `体检失败：${e.message}`; }
+    });
+
+    btnFix.addEventListener('click', async () => {
+      if (!lastResults || !lastResults.length) return;
+      resultsDiv.textContent = '应用修复...';
+      const cfg = await window.electronAPI.getConfig();
+      const ctx = { port: (cfg && cfg.port) || 8082, anthropicKey: 'proxy-key', openaiKey: (cfg && cfg.apiKey) || '' };
+      try {
+        for (const it of lastResults) {
+          if (it.status !== 'pass' && it.fixId) {
+            await window.electronAPI.applyFix(it.fixId, ctx);
+          }
+        }
+        resultsDiv.textContent = '修复完成，请重新体检确认';
+      } catch (e) { resultsDiv.textContent = `修复失败：${e.message}`; }
+    });
+
+    btnExport.addEventListener('click', async () => {
+      resultsDiv.textContent = '导出诊断包...';
+      try {
+        const r = await window.electronAPI.exportDiagnostics();
+        if (!r?.success) throw new Error(r?.error || '导出失败');
+        resultsDiv.textContent = `诊断包已生成：${r.file}`;
+      } catch (e) { resultsDiv.textContent = `导出失败：${e.message}`; }
+    });
+  } catch {}
+})();

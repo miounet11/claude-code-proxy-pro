@@ -13,8 +13,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 代理管理
     startProxy: (config) => ipcRenderer.invoke('start-proxy', config),
     stopProxy: () => ipcRenderer.invoke('stop-proxy'),
-    getProxyStatus: () => ipcRenderer.invoke('get-proxy-status'),
-    testConnection: (config) => ipcRenderer.invoke('test-connection', config),
+    getConfig: () => ipcRenderer.invoke('get-config'),
+    runProxyInstaller: (args) => ipcRenderer.invoke('run-proxy-installer', args),
+    configureClaudeEnv: (args) => ipcRenderer.invoke('configure-claude-env', args),
+    verifyProxy: (port) => ipcRenderer.invoke('verify-claude-proxy', port),
+    onProxyHealth: (cb) => ipcRenderer.on('proxy-health', (_e, payload) => cb(payload)),
+    // Doctor
+    runDoctor: (args) => ipcRenderer.invoke('run-doctor', args),
+    applyFix: (fixId, args) => ipcRenderer.invoke('apply-fix', fixId, args),
+    exportDiagnostics: () => ipcRenderer.invoke('export-diagnostics'),
+    // Snapshots
+    createSnapshot: (note) => ipcRenderer.invoke('create-snapshot', note),
+    listSnapshots: () => ipcRenderer.invoke('list-snapshots'),
+    rollbackSnapshot: (id) => ipcRenderer.invoke('rollback-snapshot', id),
     
     // 环境检查
     checkCommand: (command) => ipcRenderer.invoke('check-command', command),
