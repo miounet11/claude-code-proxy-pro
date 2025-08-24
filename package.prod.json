@@ -1,8 +1,8 @@
 {
   "name": "claude-code-proxy-pro",
-  "version": "4.0.1",
+  "version": "4.2.1",
   "description": "一个高效的Claude Code代理工具",
-  "main": "src/main/main.js",
+  "main": "src/main/main-enhanced.js",
   "author": {
     "name": "miounet11",
     "email": "9248293@gmail.com"
@@ -14,7 +14,6 @@
     "electron-updater": "^6.1.7",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
-    "node-pty": "^1.0.0",
     "uuid": "^11.1.0",
     "xterm": "^5.3.0",
     "xterm-addon-fit": "^0.8.0",
